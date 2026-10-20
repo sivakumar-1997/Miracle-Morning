@@ -1,0 +1,6 @@
+{
+  "name": "AuraMagic",
+  "description": "Manifestation app with Brahma Muhurta morning routines, 10 gratitude practices, water manifestation, brain frequency tuning, and night reflections.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

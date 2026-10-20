@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Outer halo aura circle -->
+    <path
+        android:fillColor="#33EC4899"
+        android:pathData="M54,18 A36,36 0 1,0 54,90 A36,36 0 1,0 54,18 Z" />
+    
+    <!-- Radiant star sparkle at top -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M54,22 L56,30 L64,32 L56,34 L54,42 L52,34 L44,32 L52,30 Z" />
+
+    <!-- Lotus center petal -->
+    <path
+        android:fillColor="#EC4899"
+        android:pathData="M54,34 C58,44 65,56 54,76 C43,56 50,44 54,34 Z" />
+
+    <!-- Lotus left petal -->
+    <path
+        android:fillColor="#F472B6"
+        android:pathData="M52,48 C42,48 34,60 44,72 C48,74 52,74 53,74 C49,66 48,56 52,48 Z" />
+
+    <!-- Lotus right petal -->
+    <path
+        android:fillColor="#F472B6"
+        android:pathData="M56,48 C66,48 74,60 64,72 C60,74 56,74 55,74 C59,66 60,56 56,48 Z" />
+
+    <!-- Lotus bottom base water ripple curve -->
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M38,76 C46,82 62,82 70,76 C65,79 43,79 38,76 Z" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M43,80 C48,84 60,84 65,80 C61,82 47,82 43,80 Z" />
+</vector>
