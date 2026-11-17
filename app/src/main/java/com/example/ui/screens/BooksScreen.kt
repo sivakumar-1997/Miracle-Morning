@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.ManifestationBook
 import com.example.ui.components.AuraCard
+import com.example.ui.components.SoftBlueButton
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.ManifestationViewModel
 
@@ -54,12 +55,12 @@ fun BooksScreen(
   Column(
     modifier = Modifier
       .fillMaxSize()
-      .padding(horizontal = 16.dp)
+      .padding(horizontal = 18.dp)
   ) {
     // Header
     AuraCard(
       modifier = Modifier.fillMaxWidth(),
-      borderColor = BlueSky
+      borderColor = SoftBlueContainer
     ) {
       Row(
         modifier = Modifier.fillMaxWidth(),
@@ -69,34 +70,34 @@ fun BooksScreen(
           modifier = Modifier
             .size(46.dp)
             .clip(CircleShape)
-            .background(BlueMist),
+            .background(SoftBlueContainer),
           contentAlignment = Alignment.Center
         ) {
           Icon(
             imageVector = Icons.Default.AutoStories,
             contentDescription = null,
-            tint = BlueDeep,
+            tint = SoftBluePrimary,
             modifier = Modifier.size(26.dp)
           )
         }
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
+        Spacer(modifier = Modifier.width(14.dp))
+        Column(modifier = Modifier.weight(1f)) {
           Text(
             text = "Manifestation & Brain Wisdom",
             style = MaterialTheme.typography.titleMedium.copy(
               fontWeight = FontWeight.Bold,
-              color = BlueDeep
+              color = TextDeepForest
             )
           )
           Text(
             text = "Foundational texts on vibration, frequency & subconscious reprogramming",
-            style = MaterialTheme.typography.bodySmall.copy(color = TextMuted)
+            style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
           )
         }
       }
     }
 
-    Spacer(modifier = Modifier.height(10.dp))
+    Spacer(modifier = Modifier.height(12.dp))
 
     // Filter chips row
     LazyRow(
@@ -110,14 +111,17 @@ fun BooksScreen(
           onClick = { selectedCategory = category },
           label = { Text(category) },
           colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = RosePrimary,
-            selectedLabelColor = WhitePure
-          )
+            selectedContainerColor = ForestButtonBg,
+            selectedLabelColor = ForestButtonText,
+            containerColor = SageCardElevated,
+            labelColor = TextDeepForest
+          ),
+          modifier = Modifier.minimumInteractiveComponentSize()
         )
       }
     }
 
-    Spacer(modifier = Modifier.height(8.dp))
+    Spacer(modifier = Modifier.height(10.dp))
 
     // Book Cards List
     LazyColumn(
@@ -141,18 +145,19 @@ fun BooksScreen(
     val book = selectedBook!!
     AlertDialog(
       onDismissRequest = { viewModel.selectBook(null) },
+      containerColor = SageCardSurface,
       title = {
         Column {
           Text(
             text = book.title,
             style = MaterialTheme.typography.headlineSmall.copy(
               fontWeight = FontWeight.Bold,
-              color = RoseDeep
+              color = TextDeepForest
             )
           )
           Text(
             text = "By ${book.author} • Published in ${book.year}",
-            style = MaterialTheme.typography.labelMedium.copy(color = BlueDeep)
+            style = MaterialTheme.typography.labelMedium.copy(color = TextMediumSage)
           )
         }
       },
@@ -160,15 +165,16 @@ fun BooksScreen(
         LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
           item {
             Surface(
-              color = RoseMist.copy(alpha = 0.5f),
-              shape = RoundedCornerShape(10.dp)
+              color = SageCardElevated,
+              shape = RoundedCornerShape(12.dp),
+              border = androidx.compose.foundation.BorderStroke(1.dp, SageBorder)
             ) {
               Text(
                 text = "“${book.quote}”",
-                modifier = Modifier.padding(10.dp),
+                modifier = Modifier.padding(12.dp),
                 style = MaterialTheme.typography.bodySmall.copy(
                   fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                  color = TextDark,
+                  color = TextDeepForest,
                   lineHeight = 18.sp
                 )
               )
@@ -180,26 +186,26 @@ fun BooksScreen(
               text = "Brain Wave & Frequency Mechanism:",
               style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.Bold,
-                color = BlueDeep
+                color = ForestButtonBg
               )
             )
             Text(
               text = book.brainFrequencyConcept,
-              style = MaterialTheme.typography.bodySmall.copy(color = TextDark)
+              style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
             )
           }
 
           item {
             Text(
-              text = "Core Daily Practice for AuraMagic:",
+              text = "Core Daily Practice for Miracle Mornings:",
               style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.Bold,
-                color = RosePrimary
+                color = TextDeepForest
               )
             )
             Text(
               text = book.keyPractice,
-              style = MaterialTheme.typography.bodySmall.copy(color = TextDark)
+              style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
             )
           }
 
@@ -208,22 +214,22 @@ fun BooksScreen(
               text = "Book Overview:",
               style = MaterialTheme.typography.titleSmall.copy(
                 fontWeight = FontWeight.Bold,
-                color = TextDark
+                color = TextDeepForest
               )
             )
             Text(
               text = book.fullSummary,
-              style = MaterialTheme.typography.bodySmall.copy(color = TextDark, lineHeight = 20.sp)
+              style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage, lineHeight = 20.sp)
             )
           }
         }
       },
       confirmButton = {
-        Button(
+        SoftBlueButton(
           onClick = { viewModel.selectBook(null) },
-          colors = ButtonDefaults.buttonColors(containerColor = RosePrimary)
+          modifier = Modifier.fillMaxWidth()
         ) {
-          Text("Close Guide")
+          Text("Close Guide", fontWeight = FontWeight.Bold, color = ForestButtonText)
         }
       }
     )
@@ -238,11 +244,11 @@ fun BookCardItem(
   Card(
     modifier = Modifier
       .fillMaxWidth()
-      .clip(RoundedCornerShape(16.dp))
-      .border(1.dp, CardBorder, RoundedCornerShape(16.dp))
+      .clip(RoundedCornerShape(18.dp))
+      .border(1.dp, SageBorder, RoundedCornerShape(18.dp))
       .clickable(onClick = onClick)
       .testTag("book_item_${book.id}"),
-    colors = CardDefaults.cardColors(containerColor = WhitePure),
+    colors = CardDefaults.cardColors(containerColor = SageCardSurface),
     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
   ) {
     Column(
@@ -260,28 +266,29 @@ fun BookCardItem(
             text = book.title,
             style = MaterialTheme.typography.titleMedium.copy(
               fontWeight = FontWeight.Bold,
-              color = RoseDeep
+              color = TextDeepForest
             )
           )
           Text(
             text = "${book.author} (${book.year})",
             style = MaterialTheme.typography.bodySmall.copy(
               fontWeight = FontWeight.Medium,
-              color = BlueDeep
+              color = TextMediumSage
             )
           )
         }
 
         Surface(
-          color = RoseMist,
-          shape = RoundedCornerShape(8.dp)
+          color = SageCardElevated,
+          shape = RoundedCornerShape(8.dp),
+          border = androidx.compose.foundation.BorderStroke(1.dp, SageBorder)
         ) {
           Text(
             text = book.category.take(18),
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             style = MaterialTheme.typography.labelSmall.copy(
               fontWeight = FontWeight.Bold,
-              color = RoseDeep
+              color = TextDeepForest
             )
           )
         }
@@ -293,7 +300,7 @@ fun BookCardItem(
         text = book.quote,
         style = MaterialTheme.typography.bodySmall.copy(
           fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-          color = TextDark,
+          color = TextMediumSage,
           lineHeight = 18.sp
         ),
         maxLines = 2
@@ -308,13 +315,13 @@ fun BookCardItem(
       ) {
         Text(
           text = "Brain tuning: ${book.brainFrequencyConcept.take(28)}...",
-          style = MaterialTheme.typography.labelSmall.copy(color = TextMuted)
+          style = MaterialTheme.typography.labelSmall.copy(color = TextMutedSage)
         )
         Text(
           text = "Read Notes →",
           style = MaterialTheme.typography.labelSmall.copy(
             fontWeight = FontWeight.Bold,
-            color = RosePrimary
+            color = ForestButtonBg
           )
         )
       }

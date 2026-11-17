@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="260dp"
+    android:viewportWidth="200"
+    android:viewportHeight="260">
+
+    <!-- Meditating subtle aura field / halo -->
+    <path
+        android:fillColor="#15142B1E"
+        android:pathData="M 100, 10 A 80, 80 0 0, 0 20, 90 C 20, 160 50, 240 100, 250 C 150, 240 180, 160 180, 90 A 80, 80 0 0, 0 100, 10 Z" />
+
+    <!-- Central Sushumna Nadi energy conduit -->
+    <path
+        android:strokeColor="#40142B1E"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M 100, 28 L 100, 235" />
+
+    <!-- Head / Crown -->
+    <path
+        android:fillColor="#35142B1E"
+        android:pathData="M 100, 26 A 16, 18 0 1, 0 100, 62 A 16, 18 0 1, 0 100, 26 Z" />
+
+    <!-- Neck & Shoulders -->
+    <path
+        android:fillColor="#35142B1E"
+        android:pathData="M 94, 60 C 94, 66 84, 72 65, 80 C 52, 85 48, 95 48, 110 L 46, 140 C 46, 155 42, 175 36, 195 C 33, 205 40, 212 50, 212 C 58, 212 65, 204 70, 192 L 78, 165 C 80, 160 84, 158 88, 162 C 94, 168 106, 168 112, 162 C 116, 158 120, 160 122, 165 L 130, 192 C 135, 204 142, 212 150, 212 C 160, 212 167, 205 164, 195 C 158, 175 154, 155 154, 140 L 152, 110 C 152, 95 148, 85 135, 80 C 116, 72 106, 66 106, 60 Z" />
+
+    <!-- Torso / Chest & Abdomen -->
+    <path
+        android:fillColor="#38142B1E"
+        android:pathData="M 72, 82 C 70, 100 74, 125 76, 145 C 78, 165 82, 182 86, 195 L 114, 195 C 118, 182 122, 165 124, 145 C 126, 125 130, 100 128, 82 Z" />
+
+    <!-- Crossed Legs / Lotus Posture Base -->
+    <path
+        android:fillColor="#35142B1E"
+        android:pathData="M 86, 192 C 70, 194 45, 198 28, 208 C 20, 214 20, 226 28, 230 C 42, 236 70, 238 100, 238 C 130, 238 158, 236 172, 230 C 180, 226 180, 214 172, 208 C 155, 198 130, 194 114, 192 Z" />
+
+    <!-- Left knee & thigh curve -->
+    <path
+        android:fillColor="#25142B1E"
+        android:pathData="M 32, 205 C 24, 212 24, 224 35, 230 C 50, 236 78, 238 90, 238 L 86, 215 C 65, 212 45, 208 32, 205 Z" />
+
+    <!-- Right knee & thigh curve -->
+    <path
+        android:fillColor="#25142B1E"
+        android:pathData="M 168, 205 C 176, 212 176, 224 165, 230 C 150, 236 122, 238 110, 238 L 114, 215 C 135, 212 155, 208 168, 205 Z" />
+
+    <!-- Lotus cushion / pedestal petals -->
+    <path
+        android:strokeColor="#30142B1E"
+        android:strokeWidth="1.5"
+        android:fillColor="#10142B1E"
+        android:pathData="M 40, 238 C 65, 252 135, 252 160, 238 C 145, 248 55, 248 40, 238 Z" />
+</vector>

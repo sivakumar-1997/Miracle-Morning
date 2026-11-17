@@ -5,7 +5,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -20,8 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.data.model.CompetitorPlan
 import com.example.ui.components.AuraCard
+import com.example.ui.components.SoftBlueButton
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.ManifestationViewModel
 
@@ -30,12 +29,12 @@ fun PricingScreen(
   viewModel: ManifestationViewModel
 ) {
   val competitorPlans = viewModel.competitorPlans
-  var selectedTier by remember { mutableStateOf("annual") } // monthly, annual, lifetime
+  var selectedTier by remember { mutableStateOf("annual") }
 
   LazyColumn(
     modifier = Modifier
       .fillMaxSize()
-      .padding(horizontal = 16.dp),
+      .padding(horizontal = 18.dp),
     verticalArrangement = Arrangement.spacedBy(16.dp),
     contentPadding = PaddingValues(top = 10.dp, bottom = 28.dp)
   ) {
@@ -43,22 +42,23 @@ fun PricingScreen(
     item {
       AuraCard(
         modifier = Modifier.fillMaxWidth(),
-        borderColor = RosePrimary
+        borderColor = SoftBluePrimary
       ) {
         Column(
           horizontalAlignment = Alignment.CenterHorizontally,
           modifier = Modifier.fillMaxWidth()
         ) {
           Surface(
-            color = RoseMist,
-            shape = RoundedCornerShape(12.dp)
+            color = SageCardElevated,
+            shape = RoundedCornerShape(12.dp),
+            border = androidx.compose.foundation.BorderStroke(1.dp, SageBorder)
           ) {
             Text(
               text = "60% More Affordable than Competitors",
               modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
               style = MaterialTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.Bold,
-                color = RoseDeep
+                color = TextDeepForest
               )
             )
           }
@@ -69,7 +69,7 @@ fun PricingScreen(
             text = "Competitive Pricing Sanctum",
             style = MaterialTheme.typography.headlineMedium.copy(
               fontWeight = FontWeight.Bold,
-              color = RoseDeep,
+              color = TextDeepForest,
               textAlign = TextAlign.Center
             )
           )
@@ -77,9 +77,9 @@ fun PricingScreen(
           Spacer(modifier = Modifier.height(4.dp))
 
           Text(
-            text = "Stella & Perla charge premium rates for basic affirmations. AuraMagic provides the entire morning-to-night manifestation system at an accessible rate.",
+            text = "Stella & Perla charge premium rates for basic affirmations. Miracle Mornings delivers the complete morning-to-night manifestation system at an accessible rate.",
             style = MaterialTheme.typography.bodySmall.copy(
-              color = TextMuted,
+              color = TextMediumSage,
               textAlign = TextAlign.Center
             )
           )
@@ -87,13 +87,13 @@ fun PricingScreen(
       }
     }
 
-    // Direct Price Comparison Cards (Stella vs Perla vs AuraMagic)
+    // Direct Price Comparison Cards (Stella vs Perla vs Miracle Mornings)
     item {
       Text(
         text = "Market Price Comparison",
         style = MaterialTheme.typography.titleMedium.copy(
           fontWeight = FontWeight.Bold,
-          color = TextDark
+          color = TextDeepForest
         )
       )
 
@@ -101,18 +101,18 @@ fun PricingScreen(
 
       Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         competitorPlans.forEach { plan ->
-          val isOurApp = plan.appName == "AuraMagic"
+          val isOurApp = plan.appName == "Miracle Mornings"
           Card(
             modifier = Modifier
               .fillMaxWidth()
-              .clip(RoundedCornerShape(16.dp))
+              .clip(RoundedCornerShape(18.dp))
               .border(
                 width = if (isOurApp) 2.dp else 1.dp,
-                color = if (isOurApp) RosePrimary else CardBorder,
-                shape = RoundedCornerShape(16.dp)
+                color = if (isOurApp) ForestButtonBg else SageBorder,
+                shape = RoundedCornerShape(18.dp)
               ),
             colors = CardDefaults.cardColors(
-              containerColor = if (isOurApp) RoseMist.copy(alpha = 0.4f) else WhitePure
+              containerColor = if (isOurApp) SageCardElevated else SageCardSurface
             )
           ) {
             Column(
@@ -125,42 +125,50 @@ fun PricingScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
               ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                  verticalAlignment = Alignment.CenterVertically,
+                  modifier = Modifier.weight(1f)
+                ) {
                   Text(
                     text = plan.appName,
                     style = MaterialTheme.typography.titleLarge.copy(
                       fontWeight = FontWeight.Bold,
-                      color = if (isOurApp) RoseDeep else TextDark
+                      color = TextDeepForest
                     )
                   )
                   if (isOurApp) {
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Surface(
-                      color = RosePrimary,
+                      color = ForestButtonBg,
                       shape = RoundedCornerShape(8.dp)
                     ) {
                       Text(
                         text = "OUR APP ★",
                         modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                         style = MaterialTheme.typography.labelSmall.copy(
-                          color = WhitePure,
-                          fontWeight = FontWeight.Bold
+                          color = ForestButtonText,
+                          fontWeight = FontWeight.Bold,
+                          fontSize = 10.sp
                         )
                       )
                     }
                   }
                 }
 
+                Spacer(modifier = Modifier.width(8.dp))
+
                 Surface(
-                  color = if (isOurApp) BlueMist else Color(0xFFF1F5F9),
-                  shape = RoundedCornerShape(8.dp)
+                  color = if (isOurApp) SageCardSurface else SageCardElevated,
+                  shape = RoundedCornerShape(8.dp),
+                  border = androidx.compose.foundation.BorderStroke(0.5.dp, SageBorder)
                 ) {
                   Text(
                     text = plan.marketStatus,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelSmall.copy(
-                      color = if (isOurApp) BlueDeep else TextMuted,
-                      fontWeight = FontWeight.Bold
+                      color = TextDeepForest,
+                      fontWeight = FontWeight.Bold,
+                      fontSize = 11.sp
                     )
                   )
                 }
@@ -177,10 +185,10 @@ fun PricingScreen(
                     text = plan.monthlyPrice,
                     style = MaterialTheme.typography.titleMedium.copy(
                       fontWeight = FontWeight.Bold,
-                      color = if (isOurApp) RosePrimary else TextDark
+                      color = ForestButtonBg
                     )
                   )
-                  Text("Monthly Plan", style = MaterialTheme.typography.labelSmall.copy(color = TextMuted))
+                  Text("Monthly Plan", style = MaterialTheme.typography.labelSmall.copy(color = TextMediumSage))
                 }
 
                 Column(horizontalAlignment = Alignment.End) {
@@ -188,10 +196,10 @@ fun PricingScreen(
                     text = plan.yearlyPrice,
                     style = MaterialTheme.typography.titleMedium.copy(
                       fontWeight = FontWeight.Bold,
-                      color = if (isOurApp) RoseDeep else TextDark
+                      color = TextDeepForest
                     )
                   )
-                  Text("Annual Plan", style = MaterialTheme.typography.labelSmall.copy(color = TextMuted))
+                  Text("Annual Plan", style = MaterialTheme.typography.labelSmall.copy(color = TextMediumSage))
                 }
               }
 
@@ -201,7 +209,7 @@ fun PricingScreen(
                 text = "Key Inclusions:",
                 style = MaterialTheme.typography.labelSmall.copy(
                   fontWeight = FontWeight.Bold,
-                  color = BlueDeep
+                  color = TextDeepForest
                 )
               )
 
@@ -213,13 +221,13 @@ fun PricingScreen(
                   Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = if (isOurApp) RosePrimary else Color(0xFF10B981),
+                    tint = ForestButtonBg,
                     modifier = Modifier.size(14.dp)
                   )
                   Spacer(modifier = Modifier.width(6.dp))
                   Text(
                     text = pro,
-                    style = MaterialTheme.typography.bodySmall.copy(color = TextDark)
+                    style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
                   )
                 }
               }
@@ -240,7 +248,7 @@ fun PricingScreen(
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                       text = con,
-                      style = MaterialTheme.typography.bodySmall.copy(color = TextMuted)
+                      style = MaterialTheme.typography.bodySmall.copy(color = TextMutedSage)
                     )
                   }
                 }
@@ -251,17 +259,17 @@ fun PricingScreen(
       }
     }
 
-    // AuraMagic Plan Selector
+    // Miracle Mornings Plan Selector
     item {
       AuraCard(
         modifier = Modifier.fillMaxWidth(),
-        borderColor = AuraGold
+        borderColor = SageBorder
       ) {
         Text(
-          text = "Select Your AuraMagic Tier",
+          text = "Select Your Miracle Mornings Tier",
           style = MaterialTheme.typography.titleMedium.copy(
             fontWeight = FontWeight.Bold,
-            color = RoseDeep
+            color = TextDeepForest
           )
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -276,15 +284,15 @@ fun PricingScreen(
             modifier = Modifier
               .fillMaxWidth()
               .padding(vertical = 4.dp)
-              .clip(RoundedCornerShape(12.dp))
+              .clip(RoundedCornerShape(14.dp))
               .border(
                 width = if (isSelected) 2.dp else 1.dp,
-                color = if (isSelected) RosePrimary else CardBorder,
-                shape = RoundedCornerShape(12.dp)
+                color = if (isSelected) ForestButtonBg else SageBorder,
+                shape = RoundedCornerShape(14.dp)
               )
               .clickable { selectedTier = id },
             colors = CardDefaults.cardColors(
-              containerColor = if (isSelected) RoseMist else WhitePure
+              containerColor = if (isSelected) SageCardElevated else SageCardSurface
             )
           ) {
             Row(
@@ -296,7 +304,11 @@ fun PricingScreen(
               RadioButton(
                 selected = isSelected,
                 onClick = { selectedTier = id },
-                colors = RadioButtonDefaults.colors(selectedColor = RosePrimary)
+                colors = RadioButtonDefaults.colors(
+                  selectedColor = ForestButtonBg,
+                  unselectedColor = TextMediumSage
+                ),
+                modifier = Modifier.minimumInteractiveComponentSize()
               )
               Spacer(modifier = Modifier.width(8.dp))
               Column {
@@ -304,12 +316,12 @@ fun PricingScreen(
                   text = title,
                   style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = if (isSelected) RoseDeep else TextDark
+                    color = TextDeepForest
                   )
                 )
                 Text(
                   text = priceText,
-                  style = MaterialTheme.typography.bodySmall.copy(color = TextMuted)
+                  style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
                 )
               }
             }
@@ -318,22 +330,19 @@ fun PricingScreen(
 
         Spacer(modifier = Modifier.height(14.dp))
 
-        Button(
+        SoftBlueButton(
           onClick = {
-            viewModel.showToast("AuraMagic Pro active! Welcome to abundance ✨")
+            viewModel.showToast("Miracle Mornings Pro active! Welcome to abundance ✨")
           },
           modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
-            .testTag("pricing_subscribe_button"),
-          shape = RoundedCornerShape(16.dp),
-          colors = ButtonDefaults.buttonColors(containerColor = RosePrimary)
+            .testTag("pricing_subscribe_button")
         ) {
           Text(
             text = "Start 7-Day Free Trial ($3.99/mo after)",
             style = MaterialTheme.typography.titleMedium.copy(
               fontWeight = FontWeight.Bold,
-              color = WhitePure
+              color = ForestButtonText
             )
           )
         }

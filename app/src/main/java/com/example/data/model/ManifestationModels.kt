@@ -1,17 +1,28 @@
 package com.example.data.model
 
+import androidx.compose.ui.graphics.Color
+import com.example.ui.theme.*
+
 data class UserProfile(
-  val name: String = "Sivakumar",
-  val nickname: String = "Siva",
-  val email: String = "user@auramagic.app",
+  val name: String = "Practitioner",
+  val nickname: String = "Seeker",
+  val email: String = "seeker@miraclemornings.app",
   val currentMood: String = "Grateful & High Vibration",
-  val primaryIntention: String = "Divine Abundance & Inner Peace",
+  val primaryIntention: String = "Financial Freedom & Serene Inner Peace",
   val wakeUpTime: String = "04:30 AM",
   val isBrahmaMuhurtaActive: Boolean = true,
-  val streakDays: Int = 18,
-  val auraLevel: String = "Luminous Bloom (Level 4)",
+  val streakDays: Int = 0,
+  val auraLevel: String = "Seed of Intention (Level 1)",
   val isLoggedIn: Boolean = true,
-  val planTier: String = "Aura Magic Pro ($3.99/mo)"
+  val isFirstTimeUser: Boolean = true,
+  val planTier: String = "Miracle Mornings Pass ($3.99/mo)"
+)
+
+data class WeekDayItem(
+  val dayName: String,
+  val dayNumber: Int,
+  val isToday: Boolean,
+  val isPast: Boolean
 )
 
 data class GratitudeItem(
@@ -29,59 +40,75 @@ data class GratitudeItem(
 enum class MorningRoutineStep(
   val stepNumber: Int,
   val title: String,
-  val tamilSubtitle: String,
+  val subtitle: String,
   val durationMinutes: Int,
-  val description: String,
-  val iconName: String
+  val description: String
 ) {
   BRAHMA_MUHURTA(
     1,
     "Brahma Muhurta Awakening",
-    "பிரம்ம முகூர்த்த விழிப்பு",
+    "4:30 AM – 5:00 AM Cosmic Hour",
     5,
-    "Wake up between 4:30 AM - 5:00 AM during the cosmic hour of creation when the atmosphere is charged with pure sattva and pineal clarity.",
-    "Alarm"
+    "Awaken during the Creator's hour when natural sattva prana is highest and the pineal gland is attuned to stillness."
   ),
   AURA_CLEANSING(
     2,
-    "Aura Cleansing Ritual",
-    "ஆரா சுத்தி / பிராண சுத்தி",
-    5,
-    "Cleanse your etheric aura. Brush negative energy off your arms, chest, and head with gentle sweeping motions. Breathwork clears stagnant prana.",
-    "AutoAwesome"
+    "7 Chakras Aura Cleansing",
+    "Energetic Alignment & Sound Baths",
+    7,
+    "Cleanse your etheric aura using the 7 chakra singing bowl sounds (396Hz to 963Hz) and align your body's energy centers."
   ),
-  SACRED_PRAYER(
+  HOOPONOPONO_PRAYER(
     3,
-    "Cosmic Prayer & Alignment",
-    "பிரார்த்தனை மற்றும் சங்கல்பம்",
+    "Ho'oponopono Sacred Prayer",
+    "Ancient Hawaiian Reconciliation & Peace",
     5,
-    "Surrender ego and connect with universal divine consciousness. Express reverent thanks for another day of life and abundance.",
-    "SelfImprovement"
+    "Recite the four sacred phrases to clear subconscious memory and emotional resistance with 432 Hz healing background music."
   ),
   WATER_MANIFESTATION(
     4,
     "Water Manifestation Alchemy",
-    "நீர் சங்கல்பம் மற்றும் பிரசாதம்",
+    "Intention Imprint & Mindful Sips",
     7,
-    "Place a clear glass of water before you. Cup it with both palms. Infuse your vibration of health, wealth, and gratitude into it, then sip slowly.",
-    "WaterDrop"
+    "Hold a clear glass of water in front of you, charge it with love and gratitude, and drink it sip by sip to calibrate your cells."
   ),
-  BRAIN_FREQUENCY_TUNING(
+  POSITIVE_WISDOM(
     5,
-    "Frequency Tuning & Book Wisdom",
-    "அதிர்வெண் இசைவு மற்றும் ஞானம்",
-    8,
-    "Harmonize brainwaves into Alpha/Theta state with 528Hz Solfeggio tones while absorbing positive notes and wisdom from manifestation masters.",
-    "Headphones"
+    "Positive Notes & Mind Wisdom",
+    "Subconscious Tuning from Masters",
+    5,
+    "Absorb uplifting notes and wisdom from classic manifestation literature to tune your brain into positive receptivity."
   ),
   TEN_GRATITUDE_PRACTICES(
     6,
-    "Count 10 Blessings (The Magic)",
-    "பத்து நன்றியுணர்வு சங்கல்பங்கள்",
+    "Count 10 Blessings",
+    "From Rhonda Byrne's 'The Magic'",
     10,
-    "Rhonda Byrne's cornerstone ritual from 'The Magic'. Write 10 things you are grateful for, say why, and repeat: 'Thank you, thank you, thank you!'",
-    "EditNote"
+    "Write 10 things you are grateful for, explain why, and feel the emotion repeating: 'Thank you, thank you, thank you!'"
   )
+}
+
+data class ChakraInfo(
+  val id: Int,
+  val name: String,
+  val sanskritName: String,
+  val frequencyHz: Double,
+  val color: Color,
+  val location: String,
+  val anatomicalPlacement: String,
+  val spiritualFocus: String,
+  val seedMantra: String,
+  val pronunciation: String,
+  val affirmation: String,
+  val element: String,
+  val physicalOrgans: String = "",
+  val description: String = ""
+)
+
+enum class HooponoponoAudioMode {
+  BGM_ONLY_432HZ,
+  BGM_PLUS_VOICE_432HZ,
+  OFF
 }
 
 data class ManifestationBook(

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Miracle Mornings — Sacred Manifestation & Aura Cleansing</title>
+  <meta name="description" content="Sacred morning manifestation routines, 7 chakras aura cleansing, Ho'oponopono prayer with 432Hz ambient audio, water alchemy, and 10 gratitude practices.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+</head>
+<body>
+  <div class="app-wrapper">
+    <!-- Top Header -->
+    <header class="top-header">
+      <div class="logo-area">
+        <div class="logo-icon">✨</div>
+        <div>
+          <h1 class="brand-title">Miracle Mornings</h1>
+          <p class="brand-subtitle">Sacred Daily Manifestation & Aura Cleansing</p>
+        </div>
+      </div>
+
+      <div class="header-badges">
+        <div class="pill-badge" id="current-date-badge" title="Current Local Date">📅 Today</div>
+        <div class="pill-badge" id="tz-badge" style="display:none;" title="Local Timezone">🌐 Auto</div>
+        <div class="pill-badge streak-badge" id="streak-count-badge" title="Tap to view streak calendar">🔥 0 Days</div>
+        <div class="pill-badge cloud-badge" id="cloud-sync-badge" title="Supabase Cloud Sync & Auth">☁️ Cloud Sync</div>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="morning">Morning Routine</button>
+      <button class="tab-btn" data-tab="night">Night Routine</button>
+      <button class="tab-btn" data-tab="streaks">Streaks</button>
+      <button class="tab-btn" data-tab="books">Wisdom Books</button>
+      <button class="tab-btn" data-tab="pricing">Pricing</button>
+    </nav>
+
+    <!-- Main Dynamic Content Container -->
+    <main id="main-content-area"></main>
+  </div>
+
+  <!-- Supabase Cloud Sync Modal Container -->
+  <div id="supabase-modal-backdrop" class="modal-backdrop" style="display:none;">
+    <div class="modal-box aura-card" style="max-width:440px;width:92%;">
+      <div class="modal-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:17px;font-weight:800;color:var(--forest-dark);margin:0;">☁️ Supabase Cloud Sync</h3>
+        <button id="btn-close-sync-modal" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted-text);">&times;</button>
+      </div>
+      <div id="supabase-modal-content"></div>
+    </div>
+  </div>
+
+  <!-- Sound & Application Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="audio.js"></script>
+  <script src="supabase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

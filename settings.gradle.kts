@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "AuraMagic"
+rootProject.name = "Miracle Mornings"
 
 include(":app")

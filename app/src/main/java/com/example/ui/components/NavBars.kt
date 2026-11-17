@@ -18,8 +18,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.remote.SupabaseCloudState
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.AppDestination
 
@@ -27,21 +29,23 @@ import com.example.ui.viewmodel.AppDestination
 fun TopAuraBar(
   title: String,
   currentDestination: AppDestination,
-  isWireframeOverlay: Boolean,
-  onToggleWireframe: () -> Unit,
-  onNavigateToWireframeScreen: () -> Unit,
   onNavigateToPricing: () -> Unit,
-  onNavigateBack: (() -> Unit)? = null
+  onNavigateBack: (() -> Unit)? = null,
+  cloudState: SupabaseCloudState? = null,
+  onOpenCloudSync: (() -> Unit)? = null
 ) {
   Row(
     modifier = Modifier
       .fillMaxWidth()
       .statusBarsPadding()
-      .padding(horizontal = 16.dp, vertical = 10.dp),
+      .padding(horizontal = 20.dp, vertical = 12.dp),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.SpaceBetween
   ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    Row(
+      modifier = Modifier.weight(1f),
+      verticalAlignment = Alignment.CenterVertically
+    ) {
       if (onNavigateBack != null) {
         IconButton(
           onClick = onNavigateBack,
@@ -52,72 +56,92 @@ fun TopAuraBar(
           Icon(
             imageVector = Icons.Default.ArrowBack,
             contentDescription = "Navigate Back",
-            tint = RoseDeep
+            tint = TextPrimaryCozy
           )
         }
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(6.dp))
       }
-      Column {
+      Column(modifier = Modifier.weight(1f, fill = false)) {
         Text(
           text = title,
           style = MaterialTheme.typography.titleLarge.copy(
             fontWeight = FontWeight.Bold,
-            color = RoseDeep
-          )
+            color = TextPrimaryCozy
+          ),
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
         Text(
-          text = "Aura & Manifestation Sanctum",
-          style = MaterialTheme.typography.labelMedium.copy(
-            color = BlueDeep
-          )
+          text = "Miracle Mornings • Sacred Routine",
+          style = MaterialTheme.typography.labelSmall.copy(
+            color = SoftBlueLight
+          ),
+          maxLines = 1,
+          overflow = TextOverflow.Ellipsis
         )
       }
     }
 
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-      // 2D Wireframe Quick Toggle / Viewer
-      Button(
-        onClick = onNavigateToWireframeScreen,
-        colors = ButtonDefaults.buttonColors(
-          containerColor = if (currentDestination == AppDestination.WIREFRAME_VIEWER) WireframeBlue else BlueMist
-        ),
-        shape = RoundedCornerShape(12.dp),
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp),
-        modifier = Modifier
-          .height(36.dp)
-          .testTag("wireframe_toggle_button")
-      ) {
-        Icon(
-          imageVector = Icons.Default.Architecture,
-          contentDescription = "2D Wireframe",
-          modifier = Modifier.size(16.dp),
-          tint = if (currentDestination == AppDestination.WIREFRAME_VIEWER) WhitePure else BlueDeep
-        )
-        Spacer(modifier = Modifier.width(4.dp))
-        Text(
-          text = "2D Wireframe",
-          style = MaterialTheme.typography.labelMedium.copy(
-            fontWeight = FontWeight.Bold,
-            color = if (currentDestination == AppDestination.WIREFRAME_VIEWER) WhitePure else BlueDeep
-          )
-        )
+    Row(
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+      if (onOpenCloudSync != null) {
+        val isAuthed = cloudState?.isAuthenticated == true
+        val label = cloudState?.statusLabel ?: "Cloud Sync"
+        Surface(
+          color = if (isAuthed) ForestButtonBg else SageCardElevated,
+          shape = RoundedCornerShape(20.dp),
+          border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isAuthed) LimePillAccent else SageBorder
+          ),
+          modifier = Modifier
+            .heightIn(min = 48.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable { onOpenCloudSync() }
+            .testTag("cloud_sync_badge")
+        ) {
+          Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+          ) {
+            Icon(
+              imageVector = if (isAuthed) Icons.Default.CloudDone else Icons.Default.CloudQueue,
+              contentDescription = "Supabase Cloud Sync",
+              tint = if (isAuthed) ForestButtonText else TextDeepForest,
+              modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+              text = label,
+              style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                color = if (isAuthed) ForestButtonText else TextDeepForest
+              ),
+              maxLines = 1,
+              overflow = TextOverflow.Ellipsis
+            )
+          }
+        }
       }
 
-      // Pricing vs Stella & Perla badge button
+      // Pricing / Pass badge button
       IconButton(
         onClick = onNavigateToPricing,
         modifier = Modifier
-          .size(36.dp)
+          .minimumInteractiveComponentSize()
+          .size(48.dp)
           .clip(CircleShape)
-          .background(RoseMist)
-          .border(1.dp, CardBorder, CircleShape)
+          .background(SageCardElevated)
+          .border(1.dp, SageBorder, CircleShape)
           .testTag("pricing_icon_button")
       ) {
         Icon(
           imageVector = Icons.Default.WorkspacePremium,
           contentDescription = "Pricing Comparison vs Stella and Perla",
-          tint = RosePrimary,
-          modifier = Modifier.size(18.dp)
+          tint = TextDeepForest,
+          modifier = Modifier.size(22.dp)
         )
       }
     }
@@ -148,27 +172,27 @@ fun BottomAuraBar(
     modifier = Modifier
       .fillMaxWidth()
       .navigationBarsPadding(),
-    color = SurfaceGlass,
+    color = SageCardSurface,
     tonalElevation = 6.dp,
-    shadowElevation = 8.dp
+    shadowElevation = 8.dp,
+    border = androidx.compose.foundation.BorderStroke(1.dp, SageBorder)
   ) {
     Row(
       modifier = Modifier
         .fillMaxWidth()
-        .height(68.dp)
+        .height(72.dp)
         .padding(horizontal = 8.dp),
       horizontalArrangement = Arrangement.SpaceAround,
       verticalAlignment = Alignment.CenterVertically
     ) {
       items.forEach { item ->
         val isSelected = currentDestination == item.destination
-        val activeColor = RosePrimary
-        val inactiveColor = TextMuted
 
         Column(
           modifier = Modifier
             .weight(1f)
             .fillMaxHeight()
+            .minimumInteractiveComponentSize()
             .clickable { onSelect(item.destination) }
             .testTag("nav_item_${item.destination.name.lowercase()}"),
           horizontalAlignment = Alignment.CenterHorizontally,
@@ -176,25 +200,25 @@ fun BottomAuraBar(
         ) {
           Box(
             modifier = Modifier
-              .clip(RoundedCornerShape(12.dp))
-              .background(if (isSelected) RoseMist else Color.Transparent)
-              .padding(horizontal = 14.dp, vertical = 4.dp),
+              .clip(RoundedCornerShape(16.dp))
+              .background(if (isSelected) ForestButtonBg else Color.Transparent)
+              .padding(horizontal = 16.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
           ) {
             Icon(
               imageVector = if (isSelected) item.selectedIcon else item.unselectedIcon,
               contentDescription = item.label,
-              tint = if (isSelected) activeColor else inactiveColor,
+              tint = if (isSelected) ForestButtonText else TextMutedSage,
               modifier = Modifier.size(22.dp)
             )
           }
           Spacer(modifier = Modifier.height(2.dp))
           Text(
             text = item.label,
-            style = MaterialTheme.typography.labelMedium.copy(
+            style = MaterialTheme.typography.labelSmall.copy(
               fontSize = 11.sp,
               fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-              color = if (isSelected) activeColor else inactiveColor
+              color = if (isSelected) TextDeepForest else TextMutedSage
             )
           )
         }

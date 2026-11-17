@@ -1,0 +1,755 @@
+:root {
+  --forest-dark: #142B1E;
+  --forest-medium: #1F3D2B;
+  --sage-cream: #F4F6F0;
+  --sage-mist: #E8EDE0;
+  --sage-border: #D0DCC8;
+  --sage-card: #FFFFFF;
+  --sage-card-elevated: #F8FAF6;
+  --lime-accent: #D4E79E;
+  --text-forest: #142B1E;
+  --text-muted: #5C7063;
+  --soft-blue: #3A5F7D;
+  --shadow-soft: 0 4px 18px rgba(20, 43, 30, 0.06);
+  --shadow-card: 0 6px 24px rgba(20, 43, 30, 0.08);
+
+  /* 7 Chakras Colors */
+  --c-root: #E53935;
+  --c-sacral: #FB8C00;
+  --c-solar: #FDD835;
+  --c-heart: #43A047;
+  --c-throat: #00ACC1;
+  --c-thirdeye: #3949AB;
+  --c-crown: #8E24AA;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-color: var(--sage-cream);
+  color: var(--text-forest);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-wrapper {
+  max-width: 680px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--forest-dark);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  box-shadow: 0 4px 10px rgba(20, 43, 30, 0.2);
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--forest-dark);
+  letter-spacing: -0.3px;
+}
+
+.brand-subtitle {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.header-badges {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.pill-badge {
+  background: var(--sage-mist);
+  border: 1px solid var(--sage-border);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--forest-dark);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-badge:hover {
+  background: #dfe6d5;
+  border-color: var(--forest-dark);
+}
+
+.pill-badge.streak-badge {
+  background: #FFF3E0;
+  border-color: #FFE0B2;
+  color: #E65100;
+}
+
+/* Nav Tabs */
+.nav-tabs {
+  display: flex;
+  background: var(--sage-mist);
+  padding: 4px;
+  border-radius: 16px;
+  gap: 4px;
+  margin-bottom: 16px;
+  border: 1px solid var(--sage-border);
+  overflow-x: auto;
+}
+
+.tab-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 9px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  background: var(--forest-dark);
+  color: #FFFFFF;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+/* Stepper Pills */
+.stepper-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.step-pill {
+  flex: 1;
+  height: 38px;
+  border-radius: 12px;
+  background: var(--sage-card-elevated);
+  border: 1px solid var(--sage-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.step-pill.active {
+  background: var(--forest-dark);
+  color: #FFFFFF;
+  border-color: var(--lime-accent);
+}
+
+.step-pill.completed {
+  background: #EAF4D3;
+  color: var(--forest-dark);
+}
+
+/* Aura Card */
+.aura-card {
+  background: var(--sage-card);
+  border: 1.5px solid var(--sage-border);
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-soft);
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.step-meta-badge {
+  background: var(--sage-mist);
+  padding: 4px 10px;
+  border-radius: 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--forest-dark);
+}
+
+/* Buttons */
+.btn-forest {
+  background: var(--forest-dark);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 16px;
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.1s, background 0.2s;
+  box-shadow: 0 4px 12px rgba(20, 43, 30, 0.15);
+  width: 100%;
+}
+
+.btn-forest:hover {
+  background: var(--forest-medium);
+}
+
+.btn-forest:active {
+  transform: scale(0.98);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--forest-dark);
+  border: 1.5px solid var(--sage-border);
+  border-radius: 16px;
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  border-color: var(--forest-dark);
+  background: var(--sage-mist);
+}
+
+.nav-bottom-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  margin-bottom: 24px;
+}
+
+/* 7 Chakras Visualizer & Body */
+.anatomy-link-banner {
+  background: var(--sage-mist);
+  border: 1.5px solid rgba(20, 43, 30, 0.15);
+  border-radius: 16px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 14px;
+  transition: background 0.2s;
+}
+
+.anatomy-link-banner:hover {
+  background: #dfe6d5;
+}
+
+.meditating-canvas-box {
+  width: 100%;
+  height: 320px;
+  background: radial-gradient(circle at center, rgba(67, 160, 71, 0.15) 0%, #E8EDE0 65%, #F4F6F0 100%);
+  border-radius: 20px;
+  border: 1px solid var(--sage-border);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.body-svg {
+  height: 88%;
+  width: auto;
+}
+
+.chakra-node-dot {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s, box-shadow 0.25s;
+  z-index: 5;
+}
+
+.chakra-node-dot::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FFFFFF;
+}
+
+.chakra-node-dot.active {
+  transform: translate(-50%, -50%) scale(1.4);
+  box-shadow: 0 0 24px 6px currentColor;
+  animation: pulseOrb 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseOrb {
+  0% { box-shadow: 0 0 10px 2px currentColor; }
+  50% { box-shadow: 0 0 28px 8px currentColor; }
+  100% { box-shadow: 0 0 10px 2px currentColor; }
+}
+
+/* Cumulative Journey Banner */
+.journey-banner {
+  background: var(--sage-card-elevated);
+  border: 2px solid rgba(20, 43, 30, 0.25);
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: all 0.2s;
+}
+
+.journey-banner.playing {
+  background: var(--forest-dark);
+  color: #fff;
+  border-color: var(--lime-accent);
+}
+
+.journey-step-bar {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+}
+
+.journey-step-segment {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.journey-step-segment.past {
+  background: var(--lime-accent);
+}
+
+.journey-step-segment.current {
+  background: #FFF;
+  box-shadow: 0 0 8px #FFF;
+}
+
+/* Chakra Audio List */
+.chakra-audio-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--sage-card-elevated);
+  border: 1px solid var(--sage-border);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chakra-audio-item:hover {
+  background: #f0f4ea;
+}
+
+.chakra-audio-item.active {
+  border-color: currentColor;
+  background: #FFF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+.btn-pill-play {
+  background: var(--forest-dark);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 14px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-pill-play.playing {
+  background: #E53935;
+}
+
+/* Ho'oponopono Prayer Screen */
+.timer-dial-card {
+  text-align: center;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--forest-dark);
+  color: #fff;
+  margin-bottom: 14px;
+}
+
+.timer-countdown {
+  font-size: 48px;
+  font-weight: 800;
+  font-family: monospace;
+  letter-spacing: 2px;
+  color: var(--lime-accent);
+  margin: 10px 0;
+}
+
+.phrase-card {
+  border: 1.5px solid var(--sage-border);
+  background: var(--sage-card);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: all 0.3s;
+}
+
+.phrase-card.active {
+  background: var(--forest-dark);
+  color: #fff;
+  border-color: var(--lime-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(20, 43, 30, 0.15);
+}
+
+.phrase-card.active .phrase-meaning {
+  color: var(--lime-accent);
+}
+
+.phrase-number {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sage-mist);
+  color: var(--forest-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+.phrase-card.active .phrase-number {
+  background: var(--lime-accent);
+  color: var(--forest-dark);
+}
+
+.audio-mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 14px 0;
+}
+
+.radio-mode-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid var(--sage-border);
+  background: var(--sage-card-elevated);
+  cursor: pointer;
+}
+
+.radio-mode-row.selected {
+  border: 2px solid var(--forest-dark);
+  background: #FFF;
+}
+
+/* Water Manifestation */
+.water-cup-box {
+  background: #E8F4F8;
+  border: 1.5px solid #BEE3F8;
+  border-radius: 20px;
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.sip-dots-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.sip-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--soft-blue);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--soft-blue);
+}
+
+.sip-dot.filled {
+  background: var(--soft-blue);
+  color: #fff;
+}
+
+/* Gratitude Practice Checklist */
+.gratitude-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--sage-card);
+  border: 1px solid var(--sage-border);
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gratitude-item.completed {
+  background: #F1F6EC;
+  border-color: #C5DAC0;
+}
+
+.gratitude-checkbox {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  border: 2px solid var(--forest-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  color: #fff;
+  font-weight: 800;
+}
+
+.gratitude-item.completed .gratitude-checkbox {
+  background: var(--forest-dark);
+}
+
+/* Modal Backdrop */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(10, 20, 14, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.modal-sheet {
+  background: #FFF;
+  border-radius: 24px;
+  max-width: 540px;
+  width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 24px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  border: 1.5px solid var(--sage-border);
+}
+
+/* Calendar Grid */
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  padding: 4px 0;
+}
+
+.calendar-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--sage-border);
+  background: var(--sage-card-elevated);
+}
+
+.calendar-cell.completed {
+  background: var(--forest-dark);
+  color: #fff;
+  border-color: var(--lime-accent);
+}
+
+/* Toast */
+.toast-banner {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--forest-dark);
+  color: #FFF;
+  padding: 12px 24px;
+  border-radius: 30px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  font-weight: 600;
+  font-size: 14px;
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Supabase Cloud Badge & Modal */
+.pill-badge.cloud-badge {
+  background: #E8F4F8;
+  color: #0070F3;
+  border: 1px solid #BEE3F8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-badge.cloud-badge:hover {
+  background: #D0EBFF;
+  transform: translateY(-1px);
+}
+
+.pill-badge.cloud-badge.connected {
+  background: #E6F4EA;
+  color: #137333;
+  border-color: #CEEAD6;
+}
+
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 20, 14, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.auth-input-group {
+  margin-bottom: 12px;
+}
+
+.auth-input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: var(--forest-dark);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--sage-border);
+  font-size: 13px;
+  background: #fff;
+  color: var(--forest-dark);
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--forest-dark);
+  box-shadow: 0 0 0 2px rgba(20, 43, 30, 0.15);
+}
+
+.auth-tabs-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  background: var(--sage-card-elevated);
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--sage-border);
+}
+
+.auth-tab-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.auth-tab-btn.active {
+  background: #fff;
+  color: var(--forest-dark);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}

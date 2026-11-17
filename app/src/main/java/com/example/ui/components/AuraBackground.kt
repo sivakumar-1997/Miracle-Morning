@@ -21,28 +21,24 @@ fun AuraBackground(
   modifier: Modifier = Modifier,
   content: @Composable BoxScope.() -> Unit
 ) {
-  val infiniteTransition = rememberInfiniteTransition(label = "auraGlow")
+  val infiniteTransition = rememberInfiniteTransition(label = "sageAuraGlow")
   val pulseFraction by infiniteTransition.animateFloat(
     initialValue = 0f,
     targetValue = 1f,
     animationSpec = infiniteRepeatable(
-      animation = tween(durationMillis = 6000, easing = LinearEasing),
+      animation = tween(durationMillis = 8000, easing = LinearEasing),
       repeatMode = RepeatMode.Reverse
     ),
-    label = "auraPulse"
+    label = "sageAuraPulse"
   )
 
-  val softPink = Color(0xFFFDF2F8)
-  val softRoseBlush = Color(0xFFFCE7F3)
-  val softBlue = Color(0xFFF0F9FF)
-  val celestialSky = Color(0xFFE0F2FE)
-
+  // Warm pale sage & creamy eucalyptus tones from Dribbble reference image_dc3f9eb0.png
   val gradientBrush = Brush.verticalGradient(
     colors = listOf(
-      softPink,
-      softRoseBlush.copy(alpha = 0.8f + pulseFraction * 0.2f),
-      softBlue.copy(alpha = 0.9f),
-      celestialSky
+      SageMistLight,
+      SageCreamBg,
+      SageMistDarker.copy(alpha = 0.6f + pulseFraction * 0.15f),
+      SageCreamBg
     )
   )
 
@@ -58,9 +54,9 @@ fun AuraBackground(
 @Composable
 fun AuraCard(
   modifier: Modifier = Modifier,
-  cornerRadius: Dp = 20.dp,
-  backgroundColor: Color = SurfaceGlass,
-  borderColor: Color = CardBorder,
+  cornerRadius: Dp = 22.dp,
+  backgroundColor: Color = SageCardSurface,
+  borderColor: Color = SageBorder,
   content: @Composable ColumnScope.() -> Unit
 ) {
   Card(
@@ -74,9 +70,37 @@ fun AuraCard(
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .padding(16.dp)
+        .padding(18.dp)
     ) {
       content()
     }
+  }
+}
+
+/**
+ * Dark Forest Green Pill Button (as shown in reference image_dc3f9eb0.png "Buy Now", "Continue")
+ */
+@Composable
+fun SoftBlueButton(
+  onClick: () -> Unit,
+  modifier: Modifier = Modifier,
+  enabled: Boolean = true,
+  content: @Composable RowScope.() -> Unit
+) {
+  Button(
+    onClick = onClick,
+    enabled = enabled,
+    modifier = modifier
+      .height(52.dp),
+    shape = RoundedCornerShape(26.dp), // Sleek pill shape
+    colors = ButtonDefaults.buttonColors(
+      containerColor = ForestButtonBg,
+      contentColor = ForestButtonText,
+      disabledContainerColor = SageCardElevated,
+      disabledContentColor = TextMutedSage
+    ),
+    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp, pressedElevation = 5.dp)
+  ) {
+    content()
   }
 }

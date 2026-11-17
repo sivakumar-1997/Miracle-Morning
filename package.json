@@ -1,0 +1,24 @@
+{
+  "name": "miracle-mornings-web",
+  "version": "3.0.0",
+  "description": "Miracle Mornings - Sacred morning manifestation and 7 chakras aura cleansing web application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "manifestation",
+    "chakras",
+    "solfeggio",
+    "meditation",
+    "hooponopono",
+    "supabase",
+    "vercel"
+  ],
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "author": "",
+  "license": "ISC"
+}

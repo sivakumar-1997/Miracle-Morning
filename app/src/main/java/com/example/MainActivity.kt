@@ -19,12 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.components.AuraBackground
 import com.example.ui.components.BottomAuraBar
+import com.example.ui.components.SupabaseSyncModal
 import com.example.ui.components.TopAuraBar
 import com.example.ui.screens.*
-import com.example.ui.theme.BlueDeep
-import com.example.ui.theme.MyApplicationTheme
-import com.example.ui.theme.RosePrimary
-import com.example.ui.theme.WhitePure
+import com.example.ui.theme.*
 import com.example.ui.viewmodel.AppDestination
 import com.example.ui.viewmodel.ManifestationViewModel
 import kotlinx.coroutines.delay
@@ -38,8 +36,9 @@ class MainActivity : ComponentActivity() {
         val vm: ManifestationViewModel = viewModel()
         val currentDestination by vm.currentDestination.collectAsState()
         val user by vm.userProfile.collectAsState()
-        val isWireframeOverlay by vm.isWireframeOverlay.collectAsState()
+        val cloudState by vm.cloudState.collectAsState()
         val toastMessage by vm.toastMessage.collectAsState()
+        var showCloudSyncModal by remember { mutableStateOf(false) }
 
         // Handle physical/system back press
         BackHandler(enabled = currentDestination != AppDestination.HOME) {
@@ -65,13 +64,12 @@ class MainActivity : ComponentActivity() {
                 TopAuraBar(
                   title = currentDestination.label,
                   currentDestination = currentDestination,
-                  isWireframeOverlay = isWireframeOverlay,
-                  onToggleWireframe = { vm.toggleWireframeOverlay() },
-                  onNavigateToWireframeScreen = { vm.navigateTo(AppDestination.WIREFRAME_VIEWER) },
                   onNavigateToPricing = { vm.navigateTo(AppDestination.PRICING) },
                   onNavigateBack = if (currentDestination != AppDestination.HOME) {
                     { vm.navigateBack() }
-                  } else null
+                  } else null,
+                  cloudState = cloudState,
+                  onOpenCloudSync = { showCloudSyncModal = true }
                 )
               }
             },
@@ -115,7 +113,8 @@ class MainActivity : ComponentActivity() {
                   }
                   AppDestination.MORNING_ROUTINE -> {
                     MorningRoutineScreen(
-                      viewModel = vm
+                      viewModel = vm,
+                      onNavigateToHome = { vm.navigateTo(AppDestination.HOME) }
                     )
                   }
                   AppDestination.NIGHT_ROUTINE -> {
@@ -138,12 +137,6 @@ class MainActivity : ComponentActivity() {
                       viewModel = vm
                     )
                   }
-                  AppDestination.WIREFRAME_VIEWER -> {
-                    WireframeViewerScreen(
-                      viewModel = vm,
-                      onNavigateToScreen = { target -> vm.navigateTo(target) }
-                    )
-                  }
                 }
               }
 
@@ -156,18 +149,25 @@ class MainActivity : ComponentActivity() {
                     .align(Alignment.BottomCenter)
                 ) {
                   Surface(
-                    color = BlueDeep,
+                    color = ForestButtonBg,
                     shape = RoundedCornerShape(14.dp),
-                    shadowElevation = 6.dp
+                    shadowElevation = 6.dp,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, LimePillAccent)
                   ) {
                     Text(
                       text = toastMessage ?: "",
-                      color = WhitePure,
+                      color = ForestButtonText,
                       style = MaterialTheme.typography.bodyMedium,
                       modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
                     )
                   }
                 }
+              }
+              if (showCloudSyncModal) {
+                SupabaseSyncModal(
+                  viewModel = vm,
+                  onDismiss = { showCloudSyncModal = false }
+                )
               }
             }
           }

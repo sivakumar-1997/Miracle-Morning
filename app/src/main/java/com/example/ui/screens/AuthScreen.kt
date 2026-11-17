@@ -3,6 +3,7 @@ package com.example.ui.screens
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -24,6 +25,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.ui.components.AuraCard
+import com.example.ui.components.SoftBlueButton
+import com.example.ui.components.SupabaseSyncModal
 import com.example.ui.theme.*
 import com.example.ui.viewmodel.AuthSubMode
 import com.example.ui.viewmodel.ManifestationViewModel
@@ -35,12 +38,15 @@ fun AuthScreen(
   onProceedToOnboarding: () -> Unit
 ) {
   val authMode by viewModel.authMode.collectAsState()
-  var email by remember { mutableStateOf("sivakumar@auramagic.app") }
-  var password by remember { mutableStateOf("manifest2026") }
-  var confirmPassword by remember { mutableStateOf("manifest2026") }
+  val cloudState by viewModel.cloudState.collectAsState()
+  var email by remember { mutableStateOf("siva@miraclemornings.app") }
+  var password by remember { mutableStateOf("miracle2026") }
   var fullName by remember { mutableStateOf("Sivakumar") }
   var passwordVisible by remember { mutableStateOf(false) }
   var statusMessage by remember { mutableStateOf<String?>(null) }
+  var authError by remember { mutableStateOf<String?>(null) }
+  var isSubmitting by remember { mutableStateOf(false) }
+  var showCloudModal by remember { mutableStateOf(false) }
 
   val scrollState = rememberScrollState()
 
@@ -50,92 +56,84 @@ fun AuthScreen(
       .statusBarsPadding()
       .navigationBarsPadding()
       .verticalScroll(scrollState)
-      .padding(horizontal = 24.dp, vertical = 16.dp),
+      .padding(horizontal = 24.dp, vertical = 20.dp),
     horizontalAlignment = Alignment.CenterHorizontally,
     verticalArrangement = Arrangement.Center
   ) {
-    // App Logo & Sacred Aura Header
+    // Ethereal Emblem
     Box(
       modifier = Modifier
         .size(80.dp)
         .clip(CircleShape)
-        .background(RoseMist)
-        .border(2.dp, RosePrimary.copy(alpha = 0.5f), CircleShape),
+        .background(CozySurfaceElevated)
+        .border(1.5.dp, SoftBluePrimary.copy(alpha = 0.6f), CircleShape),
       contentAlignment = Alignment.Center
     ) {
       Icon(
         imageVector = Icons.Default.SelfImprovement,
-        contentDescription = "Aura Sacred Emblem",
-        tint = RosePrimary,
+        contentDescription = "Miracle Mornings Emblem",
+        tint = SoftBluePrimary,
         modifier = Modifier.size(44.dp)
       )
     }
 
-    Spacer(modifier = Modifier.height(12.dp))
+    Spacer(modifier = Modifier.height(14.dp))
 
     Text(
-      text = "AuraMagic",
+      text = "Miracle Mornings",
       style = MaterialTheme.typography.displayLarge.copy(
-        fontSize = 30.sp,
+        fontSize = 32.sp,
         fontWeight = FontWeight.Bold,
-        color = RoseDeep
+        color = TextDeepForest
       )
     )
 
     Text(
-      text = "Sacred Brahma Muhurta & Gratitude Sanctum",
+      text = "Your Sacred Morning Manifestation Sanctuary",
       style = MaterialTheme.typography.bodyMedium.copy(
-        color = BlueDeep,
+        color = TextMediumSage,
         textAlign = TextAlign.Center
       )
     )
 
     Spacer(modifier = Modifier.height(24.dp))
 
-    // Sub-mode tabs (Login / Register / Forgot Password)
+    // Sub-mode tabs (Login / Sign Up / Forgot Password)
     Row(
       modifier = Modifier
         .fillMaxWidth()
         .clip(RoundedCornerShape(16.dp))
-        .background(BlueMist.copy(alpha = 0.7f))
+        .background(SageCardElevated)
+        .border(1.dp, SageBorder, RoundedCornerShape(16.dp))
         .padding(4.dp),
       horizontalArrangement = Arrangement.SpaceBetween
     ) {
       listOf(
         AuthSubMode.LOGIN to "Login",
-        AuthSubMode.REGISTER to "Register",
+        AuthSubMode.REGISTER to "Sign Up",
         AuthSubMode.FORGOT_PASSWORD to "Reset"
       ).forEach { (mode, label) ->
         val isSelected = authMode == mode
         Box(
           modifier = Modifier
             .weight(1f)
+            .heightIn(min = 48.dp)
             .clip(RoundedCornerShape(12.dp))
-            .background(if (isSelected) WhitePure else Color.Transparent)
-            .border(
-              width = if (isSelected) 1.dp else 0.dp,
-              color = if (isSelected) RosePrimary.copy(alpha = 0.3f) else Color.Transparent,
-              shape = RoundedCornerShape(12.dp)
-            )
-            .padding(vertical = 10.dp)
+            .background(if (isSelected) ForestButtonBg else Color.Transparent)
+            .clickable {
+              viewModel.setAuthMode(mode)
+              statusMessage = null
+            }
             .testTag("auth_tab_${mode.name.lowercase()}"),
           contentAlignment = Alignment.Center
         ) {
-          TextButton(
-            onClick = {
-              viewModel.setAuthMode(mode)
-              statusMessage = null
-            },
-            modifier = Modifier.fillMaxWidth()
-          ) {
-            Text(
-              text = label,
-              style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = if (isSelected) RosePrimary else TextMuted
-              )
+          Text(
+            text = label,
+            style = MaterialTheme.typography.labelLarge.copy(
+              fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+              color = if (isSelected) ForestButtonText else TextMediumSage
             )
-          }
+          )
         }
       }
     }
@@ -146,7 +144,7 @@ fun AuthScreen(
     AuraCard(
       modifier = Modifier.fillMaxWidth(),
       cornerRadius = 24.dp,
-      borderColor = RoseBlush
+      borderColor = SageBorder
     ) {
       AnimatedContent(
         targetState = authMode,
@@ -162,12 +160,12 @@ fun AuthScreen(
                 text = "Welcome Back to Stillness",
                 style = MaterialTheme.typography.titleMedium.copy(
                   fontWeight = FontWeight.Bold,
-                  color = RoseDeep
+                  color = TextDeepForest
                 )
               )
               Text(
-                text = "Re-align your daily vibration and continue your morning rituals.",
-                style = MaterialTheme.typography.bodySmall.copy(color = TextMuted)
+                text = "Enter your credentials to continue your morning routines.",
+                style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
               )
 
               OutlinedTextField(
@@ -175,15 +173,19 @@ fun AuthScreen(
                 onValueChange = { email = it },
                 label = { Text("Email Address") },
                 leadingIcon = {
-                  Icon(Icons.Default.Email, contentDescription = "Email", tint = BlueDeep)
+                  Icon(Icons.Default.Email, contentDescription = "Email", tint = TextMediumSage)
                 },
                 singleLine = true,
                 modifier = Modifier
                   .fillMaxWidth()
                   .testTag("auth_email_input"),
                 colors = OutlinedTextFieldDefaults.colors(
-                  focusedBorderColor = RosePrimary,
-                  unfocusedBorderColor = BlueSky
+                  focusedBorderColor = ForestButtonBg,
+                  unfocusedBorderColor = SageBorder,
+                  focusedTextColor = TextDeepForest,
+                  unfocusedTextColor = TextDeepForest,
+                  focusedLabelColor = ForestButtonBg,
+                  unfocusedLabelColor = TextMediumSage
                 ),
                 shape = RoundedCornerShape(14.dp)
               )
@@ -193,14 +195,17 @@ fun AuthScreen(
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 leadingIcon = {
-                  Icon(Icons.Default.Lock, contentDescription = "Password", tint = BlueDeep)
+                  Icon(Icons.Default.Lock, contentDescription = "Password", tint = TextMediumSage)
                 },
                 trailingIcon = {
-                  IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                  IconButton(
+                    onClick = { passwordVisible = !passwordVisible },
+                    modifier = Modifier.minimumInteractiveComponentSize()
+                  ) {
                     Icon(
                       imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                       contentDescription = "Toggle password visibility",
-                      tint = TextMuted
+                      tint = TextMediumSage
                     )
                   }
                 },
@@ -210,8 +215,12 @@ fun AuthScreen(
                   .fillMaxWidth()
                   .testTag("auth_password_input"),
                 colors = OutlinedTextFieldDefaults.colors(
-                  focusedBorderColor = RosePrimary,
-                  unfocusedBorderColor = BlueSky
+                  focusedBorderColor = ForestButtonBg,
+                  unfocusedBorderColor = SageBorder,
+                  focusedTextColor = TextDeepForest,
+                  unfocusedTextColor = TextDeepForest,
+                  focusedLabelColor = ForestButtonBg,
+                  unfocusedLabelColor = TextMediumSage
                 ),
                 shape = RoundedCornerShape(14.dp)
               )
@@ -222,34 +231,61 @@ fun AuthScreen(
               ) {
                 TextButton(
                   onClick = { viewModel.setAuthMode(AuthSubMode.FORGOT_PASSWORD) },
-                  modifier = Modifier.testTag("auth_forgot_password_btn")
+                  modifier = Modifier
+                    .minimumInteractiveComponentSize()
+                    .testTag("auth_forgot_password_btn")
                 ) {
                   Text(
                     text = "Forgot Password?",
-                    style = MaterialTheme.typography.labelMedium.copy(color = RosePrimary)
+                    style = MaterialTheme.typography.labelMedium.copy(
+                      color = TextDeepForest,
+                      fontWeight = FontWeight.SemiBold
+                    )
                   )
                 }
               }
 
-              Button(
+              if (authError != null) {
+                Text(
+                  text = authError ?: "",
+                  style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFD32F2F))
+                )
+              }
+
+              SoftBlueButton(
                 onClick = {
-                  viewModel.loginUser(email)
-                  onAuthSuccess()
+                  authError = null
+                  if (cloudState.isConfigured) {
+                    isSubmitting = true
+                    viewModel.signInSupabase(
+                      email = email.trim(),
+                      password = password,
+                      onSuccess = {
+                        isSubmitting = false
+                        onAuthSuccess()
+                      },
+                      onError = { msg ->
+                        isSubmitting = false
+                        authError = msg
+                      }
+                    )
+                  } else {
+                    viewModel.loginUser(email)
+                    onAuthSuccess()
+                  }
                 },
+                enabled = !isSubmitting,
                 modifier = Modifier
                   .fillMaxWidth()
-                  .height(50.dp)
-                  .testTag("auth_submit_button"),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = RosePrimary)
+                  .testTag("auth_submit_button")
               ) {
-                Icon(Icons.Default.Login, contentDescription = null, tint = WhitePure)
+                Icon(Icons.Default.Login, contentDescription = null, tint = ForestButtonText)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                  text = "Enter Sanctum",
+                  text = if (isSubmitting) "Connecting..." else if (cloudState.isConfigured) "Sign In & Cloud Sync" else "Login to Sanctuary",
                   style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = WhitePure
+                    color = ForestButtonText
                   )
                 )
               }
@@ -257,15 +293,15 @@ fun AuthScreen(
 
             AuthSubMode.REGISTER -> {
               Text(
-                text = "Begin Your Sacred Journey",
+                text = "Create Your Account",
                 style = MaterialTheme.typography.titleMedium.copy(
                   fontWeight = FontWeight.Bold,
-                  color = RoseDeep
+                  color = TextDeepForest
                 )
               )
               Text(
-                text = "Create your sanctuary account. Next, we will personalize your morning rituals and intentions.",
-                style = MaterialTheme.typography.bodySmall.copy(color = TextMuted)
+                text = "Sign up to begin your personalized manifestation routines.",
+                style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
               )
 
               OutlinedTextField(
@@ -273,12 +309,20 @@ fun AuthScreen(
                 onValueChange = { fullName = it },
                 label = { Text("Full Name") },
                 leadingIcon = {
-                  Icon(Icons.Default.Person, contentDescription = "Name", tint = BlueDeep)
+                  Icon(Icons.Default.Person, contentDescription = "Name", tint = TextMediumSage)
                 },
                 singleLine = true,
                 modifier = Modifier
                   .fillMaxWidth()
                   .testTag("auth_name_input"),
+                colors = OutlinedTextFieldDefaults.colors(
+                  focusedBorderColor = ForestButtonBg,
+                  unfocusedBorderColor = SageBorder,
+                  focusedTextColor = TextDeepForest,
+                  unfocusedTextColor = TextDeepForest,
+                  focusedLabelColor = ForestButtonBg,
+                  unfocusedLabelColor = TextMediumSage
+                ),
                 shape = RoundedCornerShape(14.dp)
               )
 
@@ -287,47 +331,86 @@ fun AuthScreen(
                 onValueChange = { email = it },
                 label = { Text("Email Address") },
                 leadingIcon = {
-                  Icon(Icons.Default.Email, contentDescription = "Email", tint = BlueDeep)
+                  Icon(Icons.Default.Email, contentDescription = "Email", tint = TextMediumSage)
                 },
                 singleLine = true,
                 modifier = Modifier
                   .fillMaxWidth()
                   .testTag("auth_email_register"),
+                colors = OutlinedTextFieldDefaults.colors(
+                  focusedBorderColor = ForestButtonBg,
+                  unfocusedBorderColor = SageBorder,
+                  focusedTextColor = TextDeepForest,
+                  unfocusedTextColor = TextDeepForest,
+                  focusedLabelColor = ForestButtonBg,
+                  unfocusedLabelColor = TextMediumSage
+                ),
                 shape = RoundedCornerShape(14.dp)
               )
 
               OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Create Password") },
+                label = { Text("Password") },
                 leadingIcon = {
-                  Icon(Icons.Default.Lock, contentDescription = "Password", tint = BlueDeep)
+                  Icon(Icons.Default.Lock, contentDescription = "Password", tint = TextMediumSage)
                 },
                 visualTransformation = PasswordVisualTransformation(),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
+                colors = OutlinedTextFieldDefaults.colors(
+                  focusedBorderColor = ForestButtonBg,
+                  unfocusedBorderColor = SageBorder,
+                  focusedTextColor = TextDeepForest,
+                  unfocusedTextColor = TextDeepForest,
+                  focusedLabelColor = ForestButtonBg,
+                  unfocusedLabelColor = TextMediumSage
+                ),
                 shape = RoundedCornerShape(14.dp)
               )
 
-              Button(
+              if (authError != null) {
+                Text(
+                  text = authError ?: "",
+                  style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFD32F2F))
+                )
+              }
+
+              SoftBlueButton(
                 onClick = {
-                  viewModel.loginUser(email)
-                  onProceedToOnboarding()
+                  authError = null
+                  if (cloudState.isConfigured) {
+                    isSubmitting = true
+                    viewModel.registerUser(fullName, email)
+                    viewModel.signUpSupabase(
+                      email = email.trim(),
+                      password = password,
+                      onSuccess = {
+                        isSubmitting = false
+                        onProceedToOnboarding()
+                      },
+                      onError = { msg ->
+                        isSubmitting = false
+                        authError = msg
+                      }
+                    )
+                  } else {
+                    viewModel.registerUser(fullName, email)
+                    onProceedToOnboarding()
+                  }
                 },
+                enabled = !isSubmitting,
                 modifier = Modifier
                   .fillMaxWidth()
-                  .height(50.dp)
-                  .testTag("auth_register_button"),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = RosePrimary)
+                  .testTag("auth_register_button")
               ) {
-                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = WhitePure)
+                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = ForestButtonText)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                  text = "Continue to Onboarding",
+                  text = if (isSubmitting) "Creating Account..." else "Create Account & Start (0d Streak)",
                   style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = WhitePure
+                    color = ForestButtonText
                   )
                 )
               }
@@ -335,15 +418,15 @@ fun AuthScreen(
 
             AuthSubMode.FORGOT_PASSWORD -> {
               Text(
-                text = "Reset Sanctum Access",
+                text = "Reset Your Password",
                 style = MaterialTheme.typography.titleMedium.copy(
                   fontWeight = FontWeight.Bold,
-                  color = RoseDeep
+                  color = TextDeepForest
                 )
               )
               Text(
-                text = "Enter your registered email address and we will dispatch a secure manifestation recovery link.",
-                style = MaterialTheme.typography.bodySmall.copy(color = TextMuted)
+                text = "Enter your registered email address to receive password reset instructions.",
+                style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
               )
 
               OutlinedTextField(
@@ -351,12 +434,20 @@ fun AuthScreen(
                 onValueChange = { email = it },
                 label = { Text("Registered Email") },
                 leadingIcon = {
-                  Icon(Icons.Default.MailOutline, contentDescription = "Email", tint = BlueDeep)
+                  Icon(Icons.Default.MailOutline, contentDescription = "Email", tint = TextMediumSage)
                 },
                 singleLine = true,
                 modifier = Modifier
                   .fillMaxWidth()
                   .testTag("auth_reset_email_input"),
+                colors = OutlinedTextFieldDefaults.colors(
+                  focusedBorderColor = ForestButtonBg,
+                  unfocusedBorderColor = SageBorder,
+                  focusedTextColor = TextDeepForest,
+                  unfocusedTextColor = TextDeepForest,
+                  focusedLabelColor = ForestButtonBg,
+                  unfocusedLabelColor = TextMediumSage
+                ),
                 shape = RoundedCornerShape(14.dp)
               )
 
@@ -364,39 +455,44 @@ fun AuthScreen(
                 Text(
                   text = statusMessage ?: "",
                   style = MaterialTheme.typography.bodyMedium.copy(
-                    color = BlueDeep,
+                    color = ForestButtonBg,
                     fontWeight = FontWeight.SemiBold
                   )
                 )
               }
 
-              Button(
+              SoftBlueButton(
                 onClick = {
-                  statusMessage = "Magic reset instructions sent to $email! Check inbox."
+                  if (cloudState.isConfigured) {
+                    viewModel.recoverPasswordSupabase(email.trim()) { msg ->
+                      statusMessage = msg
+                    }
+                  } else {
+                    statusMessage = "Reset instructions sent to $email! Please check your inbox."
+                  }
                 },
                 modifier = Modifier
                   .fillMaxWidth()
-                  .height(50.dp)
-                  .testTag("auth_reset_send_button"),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = BlueDeep)
+                  .testTag("auth_reset_send_button")
               ) {
-                Icon(Icons.Default.Send, contentDescription = null, tint = WhitePure)
+                Icon(Icons.Default.Send, contentDescription = null, tint = ForestButtonText)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                  text = "Send Recovery Link",
+                  text = "Send Reset Link",
                   style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    color = WhitePure
+                    color = ForestButtonText
                   )
                 )
               }
 
               TextButton(
                 onClick = { viewModel.setAuthMode(AuthSubMode.LOGIN) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                  .fillMaxWidth()
+                  .minimumInteractiveComponentSize()
               ) {
-                Text("Return to Sign In", color = RosePrimary)
+                Text("Return to Login", color = TextDeepForest, fontWeight = FontWeight.SemiBold)
               }
             }
           }
@@ -404,24 +500,75 @@ fun AuthScreen(
       }
     }
 
-    Spacer(modifier = Modifier.height(16.dp))
+    Spacer(modifier = Modifier.height(18.dp))
 
-    // Quick direct preview button for evaluators
-    OutlinedButton(
+    // First-Time User Login (Starts with 0 Streaks)
+    Button(
       onClick = {
-        viewModel.loginUser("sivakumar@auramagic.app")
+        viewModel.loginUser("new.practitioner@miraclemornings.app", isFirstTime = true)
         onAuthSuccess()
       },
       modifier = Modifier
         .fillMaxWidth()
-        .testTag("auth_quick_demo_button"),
-      shape = RoundedCornerShape(14.dp),
-      colors = ButtonDefaults.outlinedButtonColors(contentColor = BlueDeep),
-      border = ButtonDefaults.outlinedButtonBorder.copy(brush = androidx.compose.ui.graphics.SolidColor(BlueSky))
+        .height(52.dp)
+        .minimumInteractiveComponentSize()
+        .testTag("auth_first_time_login_btn"),
+      shape = RoundedCornerShape(26.dp),
+      colors = ButtonDefaults.buttonColors(containerColor = ForestButtonBg)
     ) {
-      Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = AuraGold)
+      Icon(Icons.Default.PersonAdd, contentDescription = null, tint = ForestButtonText)
       Spacer(modifier = Modifier.width(8.dp))
-      Text("Instant Demo: Enter as Siva (Brahma Practitioner)")
+      Text("First-Time User Login (Starts with 0 Streaks)", color = ForestButtonText, fontWeight = FontWeight.Bold)
     }
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+    // Existing Practitioner Demo (18d Streak)
+    OutlinedButton(
+      onClick = {
+        viewModel.loginUser("siva@miraclemornings.app", isFirstTime = false)
+        onAuthSuccess()
+      },
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(52.dp)
+        .minimumInteractiveComponentSize()
+        .testTag("auth_quick_demo_button"),
+      shape = RoundedCornerShape(26.dp),
+      border = androidx.compose.foundation.BorderStroke(1.5.dp, ForestButtonBg)
+    ) {
+      Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = ForestButtonBg)
+      Spacer(modifier = Modifier.width(8.dp))
+      Text("Existing Practitioner Demo (Siva, 18d Streak)", color = ForestButtonBg, fontWeight = FontWeight.SemiBold)
+    }
+
+    Spacer(modifier = Modifier.height(10.dp))
+
+    TextButton(
+      onClick = { showCloudModal = true },
+      modifier = Modifier
+        .minimumInteractiveComponentSize()
+        .testTag("auth_configure_supabase_btn")
+    ) {
+      Icon(
+        imageVector = if (cloudState.isConfigured) Icons.Default.CloudDone else Icons.Default.CloudQueue,
+        contentDescription = null,
+        tint = ForestButtonBg,
+        modifier = Modifier.size(18.dp)
+      )
+      Spacer(modifier = Modifier.width(6.dp))
+      Text(
+        text = if (cloudState.isConfigured) "Supabase Cloud Sync Connected" else "Configure Supabase Cloud Sync",
+        color = TextDeepForest,
+        fontWeight = FontWeight.SemiBold
+      )
+    }
+  }
+
+  if (showCloudModal) {
+    SupabaseSyncModal(
+      viewModel = viewModel,
+      onDismiss = { showCloudModal = false }
+    )
   }
 }
