@@ -79,8 +79,8 @@ const server = http.createServer((req, res) => {
   }
 
   if (reqPath === '/') reqPath = '/index.html';
-  else if (reqPath === '/privacy') reqPath = '/privacy.html';
-  else if (reqPath === '/terms') reqPath = '/terms.html';
+  else if (reqPath === '/privacy' || reqPath === '/privacy/') reqPath = '/privacy.html';
+  else if (reqPath === '/terms' || reqPath === '/terms/') reqPath = '/terms.html';
   
   const filePath = path.join(PUBLIC_DIR, reqPath);
   

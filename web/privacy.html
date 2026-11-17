@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <meta name="description" content="Official Privacy Policy for Miracle Mornings across Android and Web.">
   <title>Privacy Policy — Miracle Mornings</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="/styles.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
 </head>
 <body>
@@ -22,11 +24,48 @@
         <a href="/" class="pill-badge" style="text-decoration:none;background:var(--forest-dark);color:#fff;">← Open App</a>
       </div>
     </header>
-    <main id="standalone-privacy-body"></main>
+
+    <main id="standalone-privacy-body">
+      <section class="legal-section-card" style="border-color:var(--lime-accent);background:var(--sage-card-elevated);">
+        <h2 style="font-size:15px;font-weight:800;color:var(--forest-dark);margin-bottom:4px;">Miracle Mornings Privacy Policy</h2>
+        <p style="font-size:11.5px;color:var(--text-muted);">Effective Date: November 17, 2026 • Contact: <a href="mailto:support@miraclemornings.app" style="color:var(--forest-dark);">support@miraclemornings.app</a></p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">1. Overview</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Miracle Mornings ('we', 'our', or 'the App') respects your privacy and is designed as a peaceful daily mindfulness, sound-relaxation, and gratitude companion across Android and Web. This Privacy Policy explains what information is stored locally, what is synced if you opt into an account, and how your choices are protected.</p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">2. Data Stored Locally on Your Device</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">By default, your daily morning and night progress—including your 28-day 'The Magic' lesson day, 10 daily gratitude blessings, 8-sip water intention &amp; count, night reflections, streak calendar dates, and timezone formatting—is stored locally on your device using Android SharedPreferences (on Android) or browser localStorage (on Web).</p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">3. Optional Account &amp; Cloud Synchronization</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Signing in is optional. If you choose to create an account or sign in for multi-device synchronization, we collect and store your email address, encrypted authentication session tokens, and your manifestation records (streak count, completed dates, water intentions, gratitude blessings, night reflections, and session timestamps) in our Supabase cloud database solely to keep your Android and Web devices in sync.</p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">4. Permissions, Audio &amp; Device Sensors</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Miracle Mornings follows a strict least-privilege approach. The app uses standard network access only for optional account sign-in and cloud sync. All 432 Hz ambient soundscapes, 7-chakra Solfeggio tones (396 Hz–963 Hz), and Ho'oponopono guidance are synthesized on-device or spoken via your browser/device Text-to-Speech engine. We do not access your camera, microphone, contacts, photo library, or precise GPS location.</p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">5. No Selling of Personal Data &amp; No Third-Party Ads</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">We never sell, rent, or trade your personal reflections, gratitude lists, or email address to advertisers or data brokers. The app contains no third-party behavioral ad trackers.</p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">6. Data Retention, Deletion &amp; Your Rights</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">You may use Miracle Mornings locally without creating an account, sign out at any time, or clear local app/browser storage to erase local records. If you have created a synced account and wish to export or permanently delete your account and cloud records, email us at <a href="mailto:support@miraclemornings.app" style="color:var(--forest-dark);">support@miraclemornings.app</a>.</p>
+      </section>
+
+      <section class="legal-section-card">
+        <h3 style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:5px;">7. Children's Privacy &amp; Policy Updates</h3>
+        <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">Miracle Mornings is intended for users aged 13 and older and does not knowingly collect personal data from children under 13. We may update this Privacy Policy as features evolve; any changes will be reflected by updating the Effective Date above.</p>
+      </section>
+    </main>
   </div>
-  <script src="legal_content.js"></script>
-  <script>
-    document.getElementById('standalone-privacy-body').innerHTML = window.renderLegalSectionsHtml('privacy');
-  </script>
 </body>
 </html>
