@@ -9,9 +9,13 @@ class SupabaseService {
     this.statusListeners = [];
     this.syncListeners = [];
 
-    // Check for saved credentials
-    this.url = this.normalizeUrl(localStorage.getItem('mm_supabase_url') || '');
-    this.anonKey = (localStorage.getItem('mm_supabase_key') || '').trim();
+    // Check saved or runtime-injected public credentials (never accept secret keys in browser)
+    const runtimeCfg = (typeof window !== 'undefined' && window.MM_SUPABASE_CONFIG) ? window.MM_SUPABASE_CONFIG : {};
+    const rawUrl = localStorage.getItem('mm_supabase_url') || runtimeCfg.url || '';
+    const rawKey = (localStorage.getItem('mm_supabase_key') || runtimeCfg.anonKey || '').trim();
+
+    this.url = this.normalizeUrl(rawUrl);
+    this.anonKey = rawKey.startsWith('sb_secret_') ? '' : rawKey;
 
     this.init();
   }
@@ -139,7 +143,11 @@ class SupabaseService {
   // --- SYNC METHODS ---
 
   getTodayString() {
-    return new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
   }
 
   // Pull latest cloud data into local state & storage

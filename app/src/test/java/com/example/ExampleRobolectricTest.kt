@@ -262,6 +262,62 @@ class ExampleRobolectricTest {
 
     sb.clearConfiguration()
     assertEquals(false, sb.state.value.isConfigured)
-    assertEquals("Cloud Sync", sb.state.value.statusLabel)
+    assertEquals("Sign In", sb.state.value.statusLabel)
+  }
+
+  @Test
+  fun `completing morning routine refreshes 10 blessings to next day of The Magic`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val repo = ManifestationRepository(context)
+    repo.refreshTodayBlessings(advanceToNextDay = false)
+    val initialDay = repo.currentMagicDay.value
+    assertEquals(10, repo.gratitudeList.value.size)
+
+    // Complete first blessing
+    repo.toggleGratitudeItem(repo.gratitudeList.value.first().id)
+    assertTrue(repo.gratitudeList.value.first().isCompleted)
+
+    // Completing morning routine advances to next day of The Magic with 10 fresh unchecked blessings
+    repo.completeMorningRoutine()
+    val expectedNextDay = (initialDay % 28) + 1
+    assertEquals(expectedNextDay, repo.currentMagicDay.value)
+    assertEquals(expectedNextDay, repo.currentMagicLesson.value.day)
+    assertEquals(10, repo.gratitudeList.value.size)
+    assertTrue(repo.gratitudeList.value.none { it.isCompleted })
+  }
+
+  @Test
+  fun `new calendar day refreshes 10 blessings and lesson suggestions add to gratitude list`() {
+    val context = ApplicationProvider.getApplicationContext<Context>()
+    val repo = ManifestationRepository(context)
+    val initialDay = repo.currentMagicDay.value
+
+    // Simulate a new calendar day arriving
+    repo.refreshDailyBlessingsIfNewDay("2099-12-31")
+    val expectedNextDay = (initialDay % 28) + 1
+    assertEquals(expectedNextDay, repo.currentMagicDay.value)
+    assertEquals(10, repo.gratitudeList.value.size)
+    assertTrue(repo.gratitudeList.value.none { it.isCompleted })
+
+    // Add a suggestion from today's lesson
+    val suggestion = repo.currentMagicLesson.value.suggestions.first()
+    repo.addMagicSuggestion(suggestion.first, suggestion.second)
+    assertTrue(
+      repo.gratitudeList.value.any {
+        it.blessing.equals(suggestion.first, ignoreCase = true) && it.isCompleted
+      }
+    )
+  }
+
+  @Test
+  fun `legal documents and ViewModel legal navigation expose Privacy Policy and Terms`() {
+    assertTrue(com.example.data.model.LegalDocuments.privacySections.size >= 6)
+    assertTrue(com.example.data.model.LegalDocuments.termsSections.size >= 6)
+
+    val app = ApplicationProvider.getApplicationContext<android.app.Application>()
+    val vm = com.example.ui.viewmodel.ManifestationViewModel(app)
+    vm.openLegal(com.example.ui.screens.LegalTab.TERMS)
+    assertEquals(com.example.ui.viewmodel.AppDestination.LEGAL, vm.currentDestination.value)
+    assertEquals(com.example.ui.screens.LegalTab.TERMS, vm.legalInitialTab.value)
   }
 }

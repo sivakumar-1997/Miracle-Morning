@@ -346,6 +346,44 @@ fun PricingScreen(
             )
           )
         }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+          modifier = Modifier.fillMaxWidth(),
+          horizontalArrangement = Arrangement.Center,
+          verticalAlignment = Alignment.CenterVertically
+        ) {
+          TextButton(
+            onClick = { viewModel.openLegal(LegalTab.PRIVACY) },
+            modifier = Modifier
+              .minimumInteractiveComponentSize()
+              .testTag("pricing_privacy_btn")
+          ) {
+            Text(
+              text = "Privacy Policy",
+              style = MaterialTheme.typography.labelSmall.copy(
+                color = TextMediumSage,
+                fontWeight = FontWeight.SemiBold
+              )
+            )
+          }
+          Text("•", style = MaterialTheme.typography.labelSmall.copy(color = TextMutedSage))
+          TextButton(
+            onClick = { viewModel.openLegal(LegalTab.TERMS) },
+            modifier = Modifier
+              .minimumInteractiveComponentSize()
+              .testTag("pricing_terms_btn")
+          ) {
+            Text(
+              text = "Terms & Conditions",
+              style = MaterialTheme.typography.labelSmall.copy(
+                color = TextMediumSage,
+                fontWeight = FontWeight.SemiBold
+              )
+            )
+          }
+        }
       }
     }
   }

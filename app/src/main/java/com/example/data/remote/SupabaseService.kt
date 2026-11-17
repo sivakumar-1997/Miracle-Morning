@@ -34,7 +34,7 @@ data class SupabaseCloudState(
   val isAuthenticated: Boolean = false,
   val user: SupabaseUser? = null,
   val isSyncing: Boolean = false,
-  val statusLabel: String = "Cloud Sync",
+  val statusLabel: String = "Sign In",
   val lastSyncMessage: String? = null
 )
 
@@ -91,8 +91,7 @@ class SupabaseService(context: Context? = null) {
       user = if (authed) SupabaseUser(uid, email) else null,
       statusLabel = when {
         authed -> email.substringBefore("@").ifBlank { "Synced" }
-        configured -> "Sign In"
-        else -> "Cloud Sync"
+        else -> "Sign In"
       }
     )
   }
@@ -115,10 +114,9 @@ class SupabaseService(context: Context? = null) {
         isAuthenticated = keepAuth,
         statusLabel = when {
           keepAuth -> current.user?.email?.substringBefore("@") ?: "Synced"
-          configured -> "Sign In"
-          else -> "Cloud Sync"
+          else -> "Sign In"
         },
-        lastSyncMessage = if (configured) "Supabase project connected" else "Invalid credentials"
+        lastSyncMessage = if (configured) "Account sync connected" else "Invalid credentials"
       )
     }
   }
@@ -136,8 +134,8 @@ class SupabaseService(context: Context? = null) {
       ?.apply()
 
     _state.value = SupabaseCloudState(
-      statusLabel = "Cloud Sync",
-      lastSyncMessage = "Disconnected from Supabase"
+      statusLabel = "Sign In",
+      lastSyncMessage = "Signed out"
     )
   }
 
@@ -286,7 +284,7 @@ class SupabaseService(context: Context? = null) {
         isAuthenticated = false,
         user = null,
         isSyncing = false,
-        statusLabel = if (it.isConfigured) "Sign In" else "Cloud Sync",
+        statusLabel = "Sign In",
         lastSyncMessage = "Signed out"
       )
     }

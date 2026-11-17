@@ -17,9 +17,70 @@ const MIME_TYPES = {
   '.ico': 'image/x-icon'
 };
 
+function loadDotEnv() {
+  const envMap = {};
+  try {
+    const envPath = path.join(__dirname, '.env');
+    if (fs.existsSync(envPath)) {
+      const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith('#')) continue;
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx > 0) {
+          const k = trimmed.slice(0, eqIdx).trim();
+          const v = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, '');
+          envMap[k] = v;
+        }
+      }
+    }
+  } catch (e) {}
+  return envMap;
+}
+
+function normalizeUrl(raw) {
+  let clean = (raw || '').trim().replace(/\/+$/, '');
+  clean = clean.replace(/\/(rest|auth)\/v1$/i, '').replace(/\/+$/, '');
+  return clean;
+}
+
 const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
+
+  if (reqPath === '/api/config.js') {
+    const dotEnv = loadDotEnv();
+    const url = normalizeUrl(
+      process.env.SUPABASE_URL ||
+      process.env.NEXT_PUBLIC_SUPABASE_URL ||
+      dotEnv.SUPABASE_URL ||
+      dotEnv.NEXT_PUBLIC_SUPABASE_URL ||
+      ''
+    );
+    const rawKey = (
+      process.env.SUPABASE_ANON_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      dotEnv.SUPABASE_ANON_KEY ||
+      dotEnv.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+      ''
+    ).trim();
+
+    const safePayload = {
+      url: (!url || url.includes('your-project.supabase.co')) ? '' : url,
+      anonKey: (!rawKey || rawKey === 'your-anon-key' || rawKey.startsWith('sb_secret_')) ? '' : rawKey
+    };
+
+    res.writeHead(200, {
+      'Content-Type': 'application/javascript; charset=utf-8',
+      'Cache-Control': 'no-store',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(`window.MM_SUPABASE_CONFIG = ${JSON.stringify(safePayload)};`);
+    return;
+  }
+
   if (reqPath === '/') reqPath = '/index.html';
+  else if (reqPath === '/privacy') reqPath = '/privacy.html';
+  else if (reqPath === '/terms') reqPath = '/terms.html';
   
   const filePath = path.join(PUBLIC_DIR, reqPath);
   

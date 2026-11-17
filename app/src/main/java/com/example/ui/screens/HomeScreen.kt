@@ -492,6 +492,50 @@ fun HomeScreen(
         }
       }
     }
+
+    // Legal Footer (Privacy Policy & Terms and Conditions)
+    item {
+      Row(
+        modifier = Modifier
+          .fillMaxWidth()
+          .padding(top = 4.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+      ) {
+        TextButton(
+          onClick = { viewModel.openLegal(LegalTab.PRIVACY) },
+          modifier = Modifier
+            .minimumInteractiveComponentSize()
+            .testTag("home_privacy_btn")
+        ) {
+          Text(
+            text = "Privacy Policy",
+            style = MaterialTheme.typography.labelMedium.copy(
+              color = TextMediumSage,
+              fontWeight = FontWeight.SemiBold
+            )
+          )
+        }
+        Text(
+          text = "•",
+          style = MaterialTheme.typography.labelMedium.copy(color = TextMutedSage)
+        )
+        TextButton(
+          onClick = { viewModel.openLegal(LegalTab.TERMS) },
+          modifier = Modifier
+            .minimumInteractiveComponentSize()
+            .testTag("home_terms_btn")
+        ) {
+          Text(
+            text = "Terms & Conditions",
+            style = MaterialTheme.typography.labelMedium.copy(
+              color = TextMediumSage,
+              fontWeight = FontWeight.SemiBold
+            )
+          )
+        }
+      }
+    }
   }
 
   // Monthly Calendar Modal (Shown when clicking streak or week strip)

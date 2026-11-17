@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.model.GratitudeItem
+import com.example.data.model.MagicLesson
 import com.example.data.model.MorningRoutineStep
 import com.example.ui.components.AuraCard
 import com.example.ui.components.ChakraVisualizer
@@ -43,6 +45,7 @@ fun MorningRoutineScreen(
   val currentStep = steps[currentStepIndex]
 
   val gratitudeList by viewModel.gratitudeList.collectAsState()
+  val currentMagicLesson by viewModel.currentMagicLesson.collectAsState()
   val chakrasList = viewModel.chakrasList
   val activeChakraId by viewModel.playingChakraId.collectAsState()
   val isSequencePlaying by viewModel.isChakraSequencePlaying.collectAsState()
@@ -248,8 +251,11 @@ fun MorningRoutineScreen(
         MorningRoutineStep.TEN_GRATITUDE_PRACTICES -> {
           TenGratitudeContent(
             gratitudeList = gratitudeList,
+            magicLesson = currentMagicLesson,
             onToggle = { viewModel.toggleGratitudeItem(it) },
-            onOpenAdd = { showAddDialog = true }
+            onOpenAdd = { showAddDialog = true },
+            onAddSuggestion = { blessing, reason -> viewModel.addMagicSuggestion(blessing, reason) },
+            onRefreshBlessings = { viewModel.refreshTodayBlessings(advanceToNextDay = false) }
           )
         }
       }
@@ -708,8 +714,11 @@ fun PositiveWisdomContent() {
 @Composable
 fun TenGratitudeContent(
   gratitudeList: List<GratitudeItem>,
+  magicLesson: MagicLesson,
   onToggle: (Int) -> Unit,
-  onOpenAdd: () -> Unit
+  onOpenAdd: () -> Unit,
+  onAddSuggestion: (String, String) -> Unit,
+  onRefreshBlessings: () -> Unit
 ) {
   val completedCount = gratitudeList.count { it.isCompleted }
 
@@ -723,7 +732,7 @@ fun TenGratitudeContent(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
       ) {
-        Column {
+        Column(modifier = Modifier.weight(1f)) {
           Text(
             text = "Count 10 Blessings (The Magic)",
             style = MaterialTheme.typography.titleMedium.copy(
@@ -732,16 +741,104 @@ fun TenGratitudeContent(
             )
           )
           Text(
-            text = "$completedCount of 10 Blessings Completed",
+            text = "$completedCount of ${gratitudeList.size} Blessings Completed • Day ${magicLesson.day} of 28",
             style = MaterialTheme.typography.bodySmall.copy(color = TextMediumSage)
           )
         }
 
-        IconButton(
-          onClick = onOpenAdd,
-          modifier = Modifier.testTag("add_blessing_button")
-        ) {
-          Icon(Icons.Default.AddCircle, contentDescription = "Add Blessing", tint = ForestButtonBg)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+          IconButton(
+            onClick = onRefreshBlessings,
+            modifier = Modifier
+              .minimumInteractiveComponentSize()
+              .testTag("refresh_blessings_button")
+          ) {
+            Icon(Icons.Default.Refresh, contentDescription = "Refresh Daily Blessings", tint = ForestButtonBg)
+          }
+
+          IconButton(
+            onClick = onOpenAdd,
+            modifier = Modifier
+              .minimumInteractiveComponentSize()
+              .testTag("add_blessing_button")
+          ) {
+            Icon(Icons.Default.AddCircle, contentDescription = "Add Blessing", tint = ForestButtonBg)
+          }
+        }
+      }
+
+      Spacer(modifier = Modifier.height(6.dp))
+      Surface(
+        color = SageCardElevated,
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, LimePillAccent),
+        modifier = Modifier
+          .fillMaxWidth()
+          .testTag("magic_lesson_card")
+      ) {
+        Column(modifier = Modifier.padding(10.dp)) {
+          Text(
+            text = magicLesson.title,
+            style = MaterialTheme.typography.labelLarge.copy(
+              fontWeight = FontWeight.Bold,
+              color = TextDeepForest
+            )
+          )
+          Spacer(modifier = Modifier.height(4.dp))
+          Text(
+            text = magicLesson.lessonGuidance,
+            style = MaterialTheme.typography.bodySmall.copy(
+              color = TextMediumSage,
+              lineHeight = 18.sp
+            )
+          )
+          Spacer(modifier = Modifier.height(8.dp))
+          Text(
+            text = "Lesson Suggestions (Tap to add):",
+            style = MaterialTheme.typography.labelSmall.copy(
+              fontWeight = FontWeight.Bold,
+              color = ForestButtonBg
+            )
+          )
+          Spacer(modifier = Modifier.height(6.dp))
+          LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+          ) {
+            items(magicLesson.suggestions) { (blessing, reason) ->
+              val alreadyAdded = gratitudeList.any {
+                it.blessing.equals(blessing, ignoreCase = true) && it.isCompleted
+              }
+              SuggestionChip(
+                onClick = { onAddSuggestion(blessing, reason) },
+                modifier = Modifier.testTag("magic_suggestion_chip_${magicLesson.suggestions.indexOfFirst { it.first == blessing }}"),
+                label = {
+                  Text(
+                    text = blessing,
+                    maxLines = 1,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                      fontWeight = FontWeight.SemiBold,
+                      color = if (alreadyAdded) ForestButtonText else TextDeepForest
+                    )
+                  )
+                },
+                icon = {
+                  Icon(
+                    imageVector = if (alreadyAdded) Icons.Default.Check else Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = if (alreadyAdded) ForestButtonText else ForestButtonBg,
+                    modifier = Modifier.size(16.dp)
+                  )
+                },
+                colors = SuggestionChipDefaults.suggestionChipColors(
+                  containerColor = if (alreadyAdded) ForestButtonBg else SageCardSurface
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                  1.dp,
+                  if (alreadyAdded) ForestButtonBg else SageBorder
+                )
+              )
+            }
+          }
         }
       }
 

@@ -47,6 +47,7 @@ fun AuthScreen(
   var authError by remember { mutableStateOf<String?>(null) }
   var isSubmitting by remember { mutableStateOf(false) }
   var showCloudModal by remember { mutableStateOf(false) }
+  var activeLegalTab by remember { mutableStateOf<LegalTab?>(null) }
 
   val scrollState = rememberScrollState()
 
@@ -282,7 +283,7 @@ fun AuthScreen(
                 Icon(Icons.Default.Login, contentDescription = null, tint = ForestButtonText)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                  text = if (isSubmitting) "Connecting..." else if (cloudState.isConfigured) "Sign In & Cloud Sync" else "Login to Sanctuary",
+                  text = if (isSubmitting) "Connecting..." else if (cloudState.isConfigured) "Sign In & Daily Sync" else "Login to Sanctuary",
                   style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = ForestButtonText
@@ -551,17 +552,53 @@ fun AuthScreen(
         .testTag("auth_configure_supabase_btn")
     ) {
       Icon(
-        imageVector = if (cloudState.isConfigured) Icons.Default.CloudDone else Icons.Default.CloudQueue,
+        imageVector = if (cloudState.isAuthenticated) Icons.Default.VerifiedUser else Icons.Default.AccountCircle,
         contentDescription = null,
         tint = ForestButtonBg,
         modifier = Modifier.size(18.dp)
       )
       Spacer(modifier = Modifier.width(6.dp))
       Text(
-        text = if (cloudState.isConfigured) "Supabase Cloud Sync Connected" else "Configure Supabase Cloud Sync",
+        text = if (cloudState.isAuthenticated) "Sacred Account Connected" else "Account & Daily Sync",
         color = TextDeepForest,
         fontWeight = FontWeight.SemiBold
       )
+    }
+
+    Row(
+      modifier = Modifier.fillMaxWidth(),
+      horizontalArrangement = Arrangement.Center,
+      verticalAlignment = Alignment.CenterVertically
+    ) {
+      TextButton(
+        onClick = { activeLegalTab = LegalTab.PRIVACY },
+        modifier = Modifier
+          .minimumInteractiveComponentSize()
+          .testTag("auth_privacy_btn")
+      ) {
+        Text(
+          text = "Privacy Policy",
+          style = MaterialTheme.typography.labelSmall.copy(
+            color = TextMediumSage,
+            fontWeight = FontWeight.SemiBold
+          )
+        )
+      }
+      Text("•", style = MaterialTheme.typography.labelSmall.copy(color = TextMutedSage))
+      TextButton(
+        onClick = { activeLegalTab = LegalTab.TERMS },
+        modifier = Modifier
+          .minimumInteractiveComponentSize()
+          .testTag("auth_terms_btn")
+      ) {
+        Text(
+          text = "Terms & Conditions",
+          style = MaterialTheme.typography.labelSmall.copy(
+            color = TextMediumSage,
+            fontWeight = FontWeight.SemiBold
+          )
+        )
+      }
     }
   }
 
@@ -569,6 +606,13 @@ fun AuthScreen(
     SupabaseSyncModal(
       viewModel = viewModel,
       onDismiss = { showCloudModal = false }
+    )
+  }
+
+  activeLegalTab?.let { tab ->
+    LegalViewerDialog(
+      initialTab = tab,
+      onDismiss = { activeLegalTab = null }
     )
   }
 }

@@ -157,27 +157,66 @@ class MiracleMorningsApp {
     this.streakDays = parseInt(localStorage.getItem('mm_streak_days') || '0', 10);
     this.completedDates = JSON.parse(localStorage.getItem('mm_completed_dates') || '[]');
 
-    // Gratitude list
-    this.gratitudeItems = JSON.parse(localStorage.getItem('mm_gratitude_items') || 'null') || [
-      { id: 1, blessing: "The miracle of waking up healthy and breathing fresh prana.", done: true },
-      { id: 2, blessing: "A warm and peaceful home that protects and comforts me.", done: true },
-      { id: 3, blessing: "Clean pure drinking water that energizes every cell.", done: false },
-      { id: 4, blessing: "Unlimited opportunities to learn, expand, and serve.", done: false },
-      { id: 5, blessing: "Family, loving friends, and uplifting souls in my circle.", done: false },
-      { id: 6, blessing: "Financial abundance flowing from expected & unexpected channels.", done: false },
-      { id: 7, blessing: "The quiet pre-dawn hours for meditation and self-discovery.", done: false },
-      { id: 8, blessing: "Forgiveness, divine mercy, and emotional lightness.", done: false },
-      { id: 9, blessing: "The vibrant wisdom of books and ancient masters.", done: false },
-      { id: 10, blessing: "Knowing that the Universe is orchestrating everything in my favor.", done: false }
-    ];
+    // "The Magic" 28-day lesson & daily refresh state
+    const savedMagicDay = parseInt(localStorage.getItem('mm_magic_day') || '0', 10);
+    this.magicDay = (savedMagicDay >= 1 && savedMagicDay <= 28) ? savedMagicDay : ((this.streakDays % 28) + 1);
 
+    const savedGratitude = JSON.parse(localStorage.getItem('mm_gratitude_items') || 'null');
+    if (Array.isArray(savedGratitude) && savedGratitude.length > 0) {
+      this.gratitudeItems = savedGratitude;
+    } else if (window.buildMagicBlessingsForDay) {
+      this.gratitudeItems = window.buildMagicBlessingsForDay(this.magicDay);
+    } else {
+      this.gratitudeItems = [];
+    }
+
+    this.checkDailyMagicRefresh();
     this.init();
+  }
+
+  getLocalDateKey() {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  checkDailyMagicRefresh() {
+    const todayKey = this.getLocalDateKey();
+    const lastDate = localStorage.getItem('mm_last_gratitude_date');
+    if (lastDate && lastDate !== todayKey) {
+      const nextDay = (this.magicDay % 28) + 1;
+      this.applyMagicDayRefresh(nextDay, todayKey);
+      return true;
+    } else if (!lastDate) {
+      localStorage.setItem('mm_last_gratitude_date', todayKey);
+      localStorage.setItem('mm_magic_day', String(this.magicDay));
+    }
+    return false;
+  }
+
+  applyMagicDayRefresh(dayNum, dateKey) {
+    const safeDay = ((((parseInt(dayNum, 10) || 1) - 1) % 28) + 28) % 28 + 1;
+    this.magicDay = safeDay;
+    if (window.buildMagicBlessingsForDay) {
+      this.gratitudeItems = window.buildMagicBlessingsForDay(safeDay);
+    }
+    localStorage.setItem('mm_magic_day', String(safeDay));
+    localStorage.setItem('mm_last_gratitude_date', dateKey || this.getLocalDateKey());
+    localStorage.setItem('mm_gratitude_items', JSON.stringify(this.gratitudeItems));
   }
 
   init() {
     this.renderHeader();
     this.bindEvents();
     this.renderCurrentView();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.checkDailyMagicRefresh()) {
+        this.renderCurrentView();
+      }
+    });
 
     if (window.supabaseService) {
       window.supabaseService.onStatusChange((status, user) => {
@@ -209,15 +248,11 @@ class MiracleMorningsApp {
       const shortEmail = user.email.split('@')[0];
       badge.innerHTML = `🟢 ${shortEmail}`;
       badge.classList.add('connected');
-      badge.title = `Supabase Sync Active (${user.email}). Tap to manage account.`;
-    } else if (window.supabaseService && window.supabaseService.isConfigured()) {
-      badge.innerHTML = `☁️ Sign In`;
-      badge.classList.remove('connected');
-      badge.title = `Supabase configured. Tap to sign in or create account.`;
+      badge.title = `Sacred Account Active (${user.email}). Tap to manage.`;
     } else {
-      badge.innerHTML = `☁️ Cloud Sync`;
+      badge.innerHTML = `👤 Sign In`;
       badge.classList.remove('connected');
-      badge.title = `Connect Supabase for multi-device sync and cloud backup.`;
+      badge.title = `Sacred Account & Daily Sync`;
     }
   }
 
@@ -271,6 +306,16 @@ class MiracleMorningsApp {
       backdrop.addEventListener('click', (e) => {
         if (e.target === backdrop) this.closeSupabaseModal();
       });
+    }
+
+    const footerPrivacy = document.getElementById('footer-privacy-btn');
+    if (footerPrivacy) {
+      footerPrivacy.addEventListener('click', () => this.openLegalModal('privacy'));
+    }
+
+    const footerTerms = document.getElementById('footer-terms-btn');
+    if (footerTerms) {
+      footerTerms.addEventListener('click', () => this.openLegalModal('terms'));
     }
   }
 
@@ -857,25 +902,59 @@ class MiracleMorningsApp {
     });
   }
 
-  // STEP 4: 10 GRATITUDE PRACTICES
+  // STEP 4: 10 GRATITUDE PRACTICES (THE MAGIC)
   renderGratitudeStep(container) {
+    this.checkDailyMagicRefresh();
+    const lesson = window.getMagicLesson ? window.getMagicLesson(this.magicDay) : {
+      day: this.magicDay,
+      title: `Day ${this.magicDay}: Count Your Blessings`,
+      lessonGuidance: "List 10 blessings each morning, state why you are grateful, and say 'Thank you, thank you, thank you.'",
+      suggestions: []
+    };
     const completedCount = this.gratitudeItems.filter(g => g.done).length;
 
     container.innerHTML = `
       <div class="aura-card">
         <div class="card-header-row">
           <div>
-            <h2 style="font-size:18px;font-weight:800;color:var(--forest-dark);">5. 10 Sacred Gratitudes</h2>
-            <p style="font-size:12px;color:var(--text-muted);">${completedCount} of 10 Blessings Counted</p>
+            <h2 style="font-size:18px;font-weight:800;color:var(--forest-dark);">5. Count 10 Blessings (The Magic)</h2>
+            <p style="font-size:12px;color:var(--text-muted);">${completedCount} of ${this.gratitudeItems.length} Blessings Counted • Day ${lesson.day} of 28</p>
           </div>
-          <button class="pill-badge" id="btn-add-blessing">+ Add Blessing</button>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="pill-badge" id="btn-refresh-blessings" title="Refresh today's blessings">↻ Refresh</button>
+            <button class="pill-badge" id="btn-add-blessing">+ Add</button>
+          </div>
+        </div>
+
+        <div class="magic-lesson-card">
+          <div style="font-size:13.5px;font-weight:800;color:var(--forest-dark);margin-bottom:4px;">✨ ${lesson.title}</div>
+          <p style="font-size:12px;color:var(--text-muted);line-height:1.45;">${lesson.lessonGuidance}</p>
+          ${lesson.suggestions && lesson.suggestions.length ? `
+            <div style="font-size:11.5px;font-weight:700;color:var(--forest-dark);margin-top:8px;">Lesson Suggestions (Tap to add):</div>
+            <div class="magic-suggestions-row">
+              ${lesson.suggestions.map((s, idx) => {
+                const isAdded = this.gratitudeItems.some(
+                  g => (g.blessing || '').toLowerCase() === s.blessing.toLowerCase() && g.done
+                );
+                return `
+                  <button class="magic-chip ${isAdded ? 'added' : ''}" data-sidx="${idx}">
+                    ${isAdded ? '✓ ' : '✨ '}${s.blessing}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          ` : ''}
         </div>
 
         <div class="gratitude-list">
-          ${this.gratitudeItems.map(item => `
+          ${this.gratitudeItems.map((item, idx) => `
             <div class="gratitude-item ${item.done ? 'completed' : ''}" data-id="${item.id}">
               <div class="gratitude-checkbox">${item.done ? '✓' : ''}</div>
-              <p style="font-size:13.5px;color:var(--forest-dark);flex:1;">${item.blessing}</p>
+              <div style="flex:1;">
+                <p style="font-size:13.5px;font-weight:700;color:var(--forest-dark);">${idx + 1}. I am truly blessed to have ${item.blessing},</p>
+                ${item.reason ? `<p style="font-size:12px;color:var(--text-muted);margin-top:2px;">because ${item.reason}.</p>` : ''}
+                <p style="font-size:11px;font-weight:700;color:${item.done ? 'var(--forest-dark)' : 'var(--text-muted)'};margin-top:4px;">Thank you, thank you, thank you! ✨</p>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -888,6 +967,17 @@ class MiracleMorningsApp {
         </button>
       </div>
     `;
+
+    container.querySelectorAll('.magic-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const sidx = parseInt(chip.dataset.sidx, 10);
+        const s = lesson.suggestions[sidx];
+        if (s) {
+          this.addMagicSuggestion(s.blessing, s.reason);
+          this.renderGratitudeStep(container);
+        }
+      });
+    });
 
     container.querySelectorAll('.gratitude-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -904,6 +994,15 @@ class MiracleMorningsApp {
       });
     });
 
+    container.querySelector('#btn-refresh-blessings').addEventListener('click', () => {
+      this.applyMagicDayRefresh(this.magicDay, this.getLocalDateKey());
+      if (window.supabaseService) {
+        window.supabaseService.syncGratitude(this.gratitudeItems);
+      }
+      this.showToast(`Blessings refreshed for Day ${this.magicDay} of 'The Magic' ✨`);
+      this.renderGratitudeStep(container);
+    });
+
     container.querySelector('#btn-add-blessing').addEventListener('click', () => {
       this.openAddBlessingModal();
     });
@@ -918,22 +1017,44 @@ class MiracleMorningsApp {
     });
   }
 
+  addMagicSuggestion(blessing, reason) {
+    const existing = this.gratitudeItems.find(
+      g => (g.blessing || '').toLowerCase() === blessing.toLowerCase()
+    );
+    if (existing) {
+      existing.done = true;
+    } else {
+      const nextId = this.gratitudeItems.reduce((max, g) => Math.max(max, g.id || 0), 0) + 1;
+      this.gratitudeItems.push({ id: nextId, blessing, reason, done: true });
+    }
+    localStorage.setItem('mm_gratitude_items', JSON.stringify(this.gratitudeItems));
+    if (window.supabaseService) {
+      window.supabaseService.syncGratitude(this.gratitudeItems);
+    }
+    this.showToast("Added blessing from today's 'The Magic' lesson ✨");
+  }
+
   completeMorningRoutine() {
     this.streakDays++;
-    const todayStr = new Date().toISOString().split('T')[0];
+    const todayStr = this.getLocalDateKey();
     if (!this.completedDates.includes(todayStr)) {
       this.completedDates.push(todayStr);
     }
     localStorage.setItem('mm_streak_days', this.streakDays);
     localStorage.setItem('mm_completed_dates', JSON.stringify(this.completedDates));
 
+    // Refresh Count 10 Blessings to the next daily lesson of "The Magic" once completed
+    const nextMagicDay = (this.magicDay % 28) + 1;
+    this.applyMagicDayRefresh(nextMagicDay, todayStr);
+
     if (window.supabaseService) {
       window.supabaseService.syncUpProfile(this.streakDays, this.completedDates, this.waterIntent, this.waterSips);
+      window.supabaseService.syncGratitude(this.gratitudeItems);
       window.supabaseService.logCompletedSession('morning');
     }
 
     this.renderHeader();
-    this.showToast("Miracle Morning complete! Sacred streak updated ✨");
+    this.showToast(`Miracle Morning complete! Day ${nextMagicDay} of 'The Magic' ready ✨`);
     setTimeout(() => {
       this.activeTab = 'streaks';
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'streaks'));
@@ -977,7 +1098,7 @@ class MiracleMorningsApp {
         window.supabaseService.syncNightReflection(val);
         window.supabaseService.logCompletedSession('night');
       }
-      this.showToast("Night reflection saved & synced to Supabase ✨");
+      this.showToast("Night reflection saved & synced ✨");
     });
   }
 
@@ -1089,8 +1210,17 @@ class MiracleMorningsApp {
             <button class="btn-outline" style="width:100%;margin-top:8px;">Choose Monthly</button>
           </div>
         </div>
+
+        <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;">
+          <button class="legal-link-btn" id="pricing-privacy-btn">Privacy Policy</button>
+          <span style="color:var(--text-muted);">•</span>
+          <button class="legal-link-btn" id="pricing-terms-btn">Terms &amp; Conditions</button>
+        </div>
       </div>
     `;
+
+    container.querySelector('#pricing-privacy-btn').addEventListener('click', () => this.openLegalModal('privacy'));
+    container.querySelector('#pricing-terms-btn').addEventListener('click', () => this.openLegalModal('terms'));
   }
 
   // --- MODALS ---
@@ -1171,8 +1301,10 @@ class MiracleMorningsApp {
     modal.className = 'modal-overlay';
     modal.innerHTML = `
       <div class="modal-sheet">
-        <h3 style="font-size:16px;font-weight:800;color:var(--forest-dark);margin-bottom:10px;">Add New Blessing</h3>
-        <input type="text" id="new-blessing-input" placeholder="What are you grateful for today?" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--sage-border);margin-bottom:12px;font-size:14px;">
+        <h3 style="font-size:16px;font-weight:800;color:var(--forest-dark);margin-bottom:6px;">Add Daily Blessing (The Magic)</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Rhonda Byrne formula: "I am truly blessed to have [WHAT], because [WHY]."</p>
+        <input type="text" id="new-blessing-input" placeholder="What are you blessed to have?" style="width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--sage-border);margin-bottom:10px;font-size:14px;">
+        <input type="text" id="new-reason-input" placeholder="Because... (e.g. it enriches my spirit)" style="width:100%;padding:11px;border-radius:12px;border:1.5px solid var(--sage-border);margin-bottom:12px;font-size:14px;">
         <div style="display:flex;gap:10px;">
           <button class="btn-outline" id="modal-cancel-btn" style="flex:1;">Cancel</button>
           <button class="btn-forest" id="modal-save-blessing-btn" style="flex:1;">Save Blessing</button>
@@ -1184,9 +1316,14 @@ class MiracleMorningsApp {
     modal.querySelector('#modal-cancel-btn').addEventListener('click', () => modal.remove());
     modal.querySelector('#modal-save-blessing-btn').addEventListener('click', () => {
       const text = modal.querySelector('#new-blessing-input').value.trim();
+      const reason = modal.querySelector('#new-reason-input').value.trim() || 'it enriches my soul';
       if (text) {
-        this.gratitudeItems.push({ id: Date.now(), blessing: text, done: true });
+        const nextId = this.gratitudeItems.reduce((max, g) => Math.max(max, g.id || 0), 0) + 1;
+        this.gratitudeItems.push({ id: nextId, blessing: text, reason, done: true });
         localStorage.setItem('mm_gratitude_items', JSON.stringify(this.gratitudeItems));
+        if (window.supabaseService) {
+          window.supabaseService.syncGratitude(this.gratitudeItems);
+        }
         modal.remove();
         if (this.activeTab === 'morning' && this.morningStep === 4) {
           this.renderGratitudeStep(document.getElementById('morning-step-container'));
@@ -1195,11 +1332,10 @@ class MiracleMorningsApp {
     });
   }
 
-  // --- SUPABASE CLOUD SYNC MODAL ---
+  // --- SACRED ACCOUNT & SYNC MODAL ---
   openSupabaseModal() {
     const backdrop = document.getElementById('supabase-modal-backdrop');
     if (!backdrop) return;
-    this.supabaseModalTab = this.supabaseModalTab || 'auth'; // 'auth' | 'settings'
     this.supabaseAuthMode = this.supabaseAuthMode || 'login'; // 'login' | 'signup'
     backdrop.style.display = 'flex';
     this.renderSupabaseModalContent();
@@ -1218,150 +1354,80 @@ class MiracleMorningsApp {
     const isConfigured = sb && sb.isConfigured();
     const user = sb && sb.getCurrentUser();
 
-    // If not configured, default tab to settings
-    const activeTab = isConfigured ? this.supabaseModalTab : 'settings';
+    let html = '';
 
-    let html = `
-      <div class="auth-tabs-row">
-        <button class="auth-tab-btn ${activeTab === 'auth' ? 'active' : ''}" id="modal-tab-auth">
-          ${user ? '👤 Account' : '🔐 Sign In / Up'}
-        </button>
-        <button class="auth-tab-btn ${activeTab === 'settings' ? 'active' : ''}" id="modal-tab-settings">
-          ⚙️ Project Settings
-        </button>
-      </div>
-    `;
-
-    if (activeTab === 'settings') {
+    if (user) {
       html += `
-        <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">
-          Connect your free <a href="https://supabase.com" target="_blank" style="color:var(--forest-dark);font-weight:700;">Supabase</a> project for zero-loss cloud persistence across devices.
+        <div style="background:var(--sage-card-elevated);border:1px solid var(--sage-border);border-radius:14px;padding:14px;margin-bottom:14px;">
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:2px;">Signed in as</div>
+          <div style="font-size:15px;font-weight:800;color:var(--forest-dark);word-break:break-all;">${user.email}</div>
+          <div style="display:flex;gap:14px;margin-top:10px;font-size:12.5px;">
+            <span>🔥 Streak: <strong>${this.streakDays} Days</strong></span>
+            <span>📅 Completed: <strong>${this.completedDates.length} Days</strong></span>
+          </div>
         </div>
 
-        <div class="auth-input-group">
-          <label>Project URL</label>
-          <input type="url" id="sb-url-input" class="auth-input" placeholder="https://xyzcompany.supabase.co" value="${sb ? sb.url : ''}">
-        </div>
-
-        <div class="auth-input-group">
-          <label>Anon Public Key</label>
-          <input type="text" id="sb-key-input" class="auth-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5c..." value="${sb ? sb.anonKey : ''}">
-        </div>
-
-        <div id="sb-settings-error" style="color:#D32F2F;font-size:12px;margin-bottom:10px;display:none;"></div>
-
-        <div style="display:flex;gap:10px;margin-top:14px;">
-          <button class="btn-forest" id="btn-save-sb-settings" style="flex:1;">
-            💾 Save & Connect
+        <div style="display:flex;gap:10px;">
+          <button class="btn-forest" id="btn-sb-sync-now" style="flex:1;">
+            🔄 Sync Now
           </button>
-          ${isConfigured ? '<button class="btn-outline" id="btn-disconnect-sb" style="color:#D32F2F;border-color:#FFCDD2;">Disconnect</button>' : ''}
+          <button class="btn-outline" id="btn-sb-signout" style="color:#D32F2F;">
+            Sign Out
+          </button>
         </div>
-
-        <div style="margin-top:14px;padding:10px;border-radius:10px;background:var(--sage-mist);font-size:11.5px;color:var(--text-muted);line-height:1.5;">
-          💡 Run the schema from <code>supabase_schema.sql</code> in your Supabase SQL Editor to enable tables, indexes, and Row Level Security.
+      `;
+    } else if (!isConfigured) {
+      html += `
+        <div style="background:var(--sage-card-elevated);border:1px solid var(--sage-border);border-radius:14px;padding:16px;">
+          <div style="font-size:14.5px;font-weight:800;color:var(--forest-dark);margin-bottom:6px;">Local Sanctuary Active</div>
+          <p style="font-size:13px;color:var(--text-muted);line-height:1.5;">
+            Your streaks, 10 daily blessings from <em>The Magic</em>, 8-sip water alchemy, and night reflections are saved safely on this device.
+          </p>
         </div>
       `;
     } else {
-      // Auth / Profile Tab
-      if (user) {
-        // User logged in
-        html += `
-          <div style="background:var(--sage-card-elevated);border:1px solid var(--sage-border);border-radius:14px;padding:14px;margin-bottom:14px;">
-            <div style="font-size:12px;color:var(--text-muted);margin-bottom:2px;">Logged in as</div>
-            <div style="font-size:15px;font-weight:800;color:var(--forest-dark);word-break:break-all;">${user.email}</div>
-            <div style="display:flex;gap:14px;margin-top:10px;font-size:12.5px;">
-              <span>🔥 Streak: <strong>${this.streakDays} Days</strong></span>
-              <span>📅 Completed: <strong>${this.completedDates.length} Days</strong></span>
-            </div>
-          </div>
+      const isLogin = this.supabaseAuthMode === 'login';
+      html += `
+        <div style="display:flex;gap:8px;margin-bottom:14px;">
+          <button class="pill-badge ${isLogin ? 'active' : ''}" id="btn-toggle-login" style="${isLogin ? 'background:var(--forest-dark);color:#fff;' : ''}">Sign In</button>
+          <button class="pill-badge ${!isLogin ? 'active' : ''}" id="btn-toggle-signup" style="${!isLogin ? 'background:var(--forest-dark);color:#fff;' : ''}">Create Account</button>
+        </div>
 
-          <div style="display:flex;gap:10px;">
-            <button class="btn-forest" id="btn-sb-sync-now" style="flex:1;">
-              🔄 Sync Now
-            </button>
-            <button class="btn-outline" id="btn-sb-signout" style="color:#D32F2F;">
-              Sign Out
-            </button>
-          </div>
-        `;
-      } else {
-        // User NOT logged in
-        const isLogin = this.supabaseAuthMode === 'login';
-        html += `
-          <div style="display:flex;gap:8px;margin-bottom:14px;">
-            <button class="pill-badge ${isLogin ? 'active' : ''}" id="btn-toggle-login" style="${isLogin ? 'background:var(--forest-dark);color:#fff;' : ''}">Sign In</button>
-            <button class="pill-badge ${!isLogin ? 'active' : ''}" id="btn-toggle-signup" style="${!isLogin ? 'background:var(--forest-dark);color:#fff;' : ''}">Create Account</button>
-          </div>
+        <div class="auth-input-group">
+          <label>Email Address</label>
+          <input type="email" id="sb-auth-email" class="auth-input" placeholder="you@example.com">
+        </div>
 
-          <div class="auth-input-group">
-            <label>Email Address</label>
-            <input type="email" id="sb-auth-email" class="auth-input" placeholder="you@example.com">
-          </div>
+        <div class="auth-input-group">
+          <label>Password</label>
+          <input type="password" id="sb-auth-password" class="auth-input" placeholder="••••••••">
+        </div>
 
-          <div class="auth-input-group">
-            <label>Password</label>
-            <input type="password" id="sb-auth-password" class="auth-input" placeholder="••••••••">
-          </div>
+        <div id="sb-auth-error" style="color:#D32F2F;font-size:12px;margin-bottom:10px;display:none;"></div>
 
-          <div id="sb-auth-error" style="color:#D32F2F;font-size:12px;margin-bottom:10px;display:none;"></div>
-
-          <button class="btn-forest" id="btn-sb-submit-auth">
-            ${isLogin ? '🔐 Sign In & Sync' : '✨ Create Free Account'}
-          </button>
-        `;
-      }
+        <button class="btn-forest" id="btn-sb-submit-auth">
+          ${isLogin ? '🔐 Sign In & Sync' : '✨ Create Free Account'}
+        </button>
+      `;
     }
+
+    html += `
+      <div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:14px;padding-top:10px;border-top:1px solid var(--sage-border);">
+        <button class="legal-link-btn" id="modal-privacy-btn">Privacy Policy</button>
+        <span style="color:var(--text-muted);">•</span>
+        <button class="legal-link-btn" id="modal-terms-btn">Terms &amp; Conditions</button>
+      </div>
+    `;
 
     container.innerHTML = html;
 
-    // Attach tab listeners
-    const tabAuthBtn = container.querySelector('#modal-tab-auth');
-    if (tabAuthBtn) {
-      tabAuthBtn.addEventListener('click', () => {
-        this.supabaseModalTab = 'auth';
-        this.renderSupabaseModalContent();
-      });
+    const modalPrivacyBtn = container.querySelector('#modal-privacy-btn');
+    if (modalPrivacyBtn) {
+      modalPrivacyBtn.addEventListener('click', () => this.openLegalModal('privacy'));
     }
-
-    const tabSettingsBtn = container.querySelector('#modal-tab-settings');
-    if (tabSettingsBtn) {
-      tabSettingsBtn.addEventListener('click', () => {
-        this.supabaseModalTab = 'settings';
-        this.renderSupabaseModalContent();
-      });
-    }
-
-    // Attach settings handlers
-    const saveSettingsBtn = container.querySelector('#btn-save-sb-settings');
-    if (saveSettingsBtn) {
-      saveSettingsBtn.addEventListener('click', () => {
-        const url = container.querySelector('#sb-url-input').value.trim();
-        const key = container.querySelector('#sb-key-input').value.trim();
-        const errEl = container.querySelector('#sb-settings-error');
-
-        if (!url || !key) {
-          errEl.textContent = 'Please enter both the Supabase URL and Anon Public Key.';
-          errEl.style.display = 'block';
-          return;
-        }
-
-        sb.configure(url, key);
-        this.showToast('Supabase credentials saved ✨');
-        this.supabaseModalTab = 'auth';
-        this.renderSupabaseModalContent();
-      });
-    }
-
-    const disconnectBtn = container.querySelector('#btn-disconnect-sb');
-    if (disconnectBtn) {
-      disconnectBtn.addEventListener('click', () => {
-        if (confirm('Disconnect from Supabase? Your local data will remain safe.')) {
-          sb.clearConfiguration();
-          this.showToast('Disconnected from Supabase');
-          this.supabaseModalTab = 'settings';
-          this.renderSupabaseModalContent();
-        }
-      });
+    const modalTermsBtn = container.querySelector('#modal-terms-btn');
+    if (modalTermsBtn) {
+      modalTermsBtn.addEventListener('click', () => this.openLegalModal('terms'));
     }
 
     // Attach auth handlers
@@ -1404,7 +1470,7 @@ class MiracleMorningsApp {
             this.showToast('Account created! Please check your email or sign in ✨');
           } else {
             await sb.signIn(email, pass);
-            this.showToast('Signed in successfully! Cloud synced ✨');
+            this.showToast('Signed in successfully! Daily sync active ✨');
           }
           this.renderSupabaseModalContent();
         } catch (err) {
@@ -1425,7 +1491,7 @@ class MiracleMorningsApp {
         await sb.syncUpProfile(this.streakDays, this.completedDates, this.waterIntent, this.waterSips);
         await sb.syncGratitude(this.gratitudeItems);
         this.refreshFromStorage();
-        this.showToast('All sacred data synchronized with Supabase ☁️');
+        this.showToast('All sacred data synchronized ✨');
         syncNowBtn.disabled = false;
         syncNowBtn.textContent = '🔄 Sync Now';
         this.renderSupabaseModalContent();
@@ -1436,10 +1502,51 @@ class MiracleMorningsApp {
     if (signoutBtn) {
       signoutBtn.addEventListener('click', async () => {
         await sb.signOut();
-        this.showToast('Signed out of Supabase');
+        this.showToast('Signed out');
         this.renderSupabaseModalContent();
       });
     }
+  }
+
+  openLegalModal(initialTab = 'privacy') {
+    let activeTab = initialTab === 'terms' ? 'terms' : 'privacy';
+    const modal = document.createElement('div');
+    modal.className = 'modal-overlay';
+    modal.style.zIndex = '4000';
+
+    const renderBody = () => {
+      const sectionsHtml = window.renderLegalSectionsHtml
+        ? window.renderLegalSectionsHtml(activeTab)
+        : '<p>Privacy &amp; Terms content unavailable.</p>';
+
+      modal.innerHTML = `
+        <div class="modal-sheet" style="max-width:580px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h2 style="font-size:18px;font-weight:800;color:var(--forest-dark);">${activeTab === 'privacy' ? 'Privacy Policy' : 'Terms & Conditions'}</h2>
+            <button style="border:none;background:var(--sage-mist);width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;" id="legal-modal-close-btn">✕</button>
+          </div>
+          <div class="auth-tabs-row">
+            <button class="auth-tab-btn ${activeTab === 'privacy' ? 'active' : ''}" id="legal-tab-privacy">Privacy Policy</button>
+            <button class="auth-tab-btn ${activeTab === 'terms' ? 'active' : ''}" id="legal-tab-terms">Terms &amp; Conditions</button>
+          </div>
+          <div>${sectionsHtml}</div>
+        </div>
+      `;
+
+      modal.querySelector('#legal-modal-close-btn').addEventListener('click', () => modal.remove());
+      modal.querySelector('#legal-tab-privacy').addEventListener('click', () => {
+        activeTab = 'privacy';
+        renderBody();
+      });
+      modal.querySelector('#legal-tab-terms').addEventListener('click', () => {
+        activeTab = 'terms';
+        renderBody();
+      });
+    };
+
+    renderBody();
+    document.body.appendChild(modal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
   }
 
   showToast(msg) {

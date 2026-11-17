@@ -24,7 +24,7 @@
         <div class="pill-badge" id="current-date-badge" title="Current Local Date">📅 Today</div>
         <div class="pill-badge" id="tz-badge" style="display:none;" title="Local Timezone">🌐 Auto</div>
         <div class="pill-badge streak-badge" id="streak-count-badge" title="Tap to view streak calendar">🔥 0 Days</div>
-        <div class="pill-badge cloud-badge" id="cloud-sync-badge" title="Supabase Cloud Sync & Auth">☁️ Cloud Sync</div>
+        <div class="pill-badge cloud-badge" id="cloud-sync-badge" title="Sacred Account & Daily Sync">👤 Sign In</div>
       </div>
     </header>
 
@@ -39,13 +39,20 @@
 
     <!-- Main Dynamic Content Container -->
     <main id="main-content-area"></main>
+
+    <!-- Legal Footer -->
+    <footer class="app-footer">
+      <button class="legal-link-btn" id="footer-privacy-btn">Privacy Policy</button>
+      <span style="color:var(--text-muted);">•</span>
+      <button class="legal-link-btn" id="footer-terms-btn">Terms &amp; Conditions</button>
+    </footer>
   </div>
 
-  <!-- Supabase Cloud Sync Modal Container -->
+  <!-- Sacred Account & Sync Modal Container -->
   <div id="supabase-modal-backdrop" class="modal-backdrop" style="display:none;">
     <div class="modal-box aura-card" style="max-width:440px;width:92%;">
       <div class="modal-header-row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <h3 style="font-size:17px;font-weight:800;color:var(--forest-dark);margin:0;">☁️ Supabase Cloud Sync</h3>
+        <h3 style="font-size:17px;font-weight:800;color:var(--forest-dark);margin:0;">✨ Sacred Account & Sync</h3>
         <button id="btn-close-sync-modal" style="background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted-text);">&times;</button>
       </div>
       <div id="supabase-modal-content"></div>
@@ -54,6 +61,9 @@
 
   <!-- Sound & Application Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/api/config.js"></script>
+  <script src="magic_lessons.js"></script>
+  <script src="legal_content.js"></script>
   <script src="audio.js"></script>
   <script src="supabase.js"></script>
   <script src="app.js"></script>

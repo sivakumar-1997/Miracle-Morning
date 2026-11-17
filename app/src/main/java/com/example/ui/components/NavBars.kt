@@ -88,7 +88,7 @@ fun TopAuraBar(
     ) {
       if (onOpenCloudSync != null) {
         val isAuthed = cloudState?.isAuthenticated == true
-        val label = cloudState?.statusLabel ?: "Cloud Sync"
+        val label = cloudState?.statusLabel ?: "Sign In"
         Surface(
           color = if (isAuthed) ForestButtonBg else SageCardElevated,
           shape = RoundedCornerShape(20.dp),
@@ -107,8 +107,8 @@ fun TopAuraBar(
             verticalAlignment = Alignment.CenterVertically
           ) {
             Icon(
-              imageVector = if (isAuthed) Icons.Default.CloudDone else Icons.Default.CloudQueue,
-              contentDescription = "Supabase Cloud Sync",
+              imageVector = if (isAuthed) Icons.Default.VerifiedUser else Icons.Default.AccountCircle,
+              contentDescription = "Sacred Account & Sync",
               tint = if (isAuthed) ForestButtonText else TextDeepForest,
               modifier = Modifier.size(16.dp)
             )

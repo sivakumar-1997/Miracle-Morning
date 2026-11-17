@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.components.AuraBackground
 import com.example.ui.components.BottomAuraBar
@@ -38,7 +40,12 @@ class MainActivity : ComponentActivity() {
         val user by vm.userProfile.collectAsState()
         val cloudState by vm.cloudState.collectAsState()
         val toastMessage by vm.toastMessage.collectAsState()
+        val legalInitialTab by vm.legalInitialTab.collectAsState()
         var showCloudSyncModal by remember { mutableStateOf(false) }
+
+        LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+          vm.refreshTimeZoneAndDate()
+        }
 
         // Handle physical/system back press
         BackHandler(enabled = currentDestination != AppDestination.HOME) {
@@ -135,6 +142,11 @@ class MainActivity : ComponentActivity() {
                   AppDestination.PRICING -> {
                     PricingScreen(
                       viewModel = vm
+                    )
+                  }
+                  AppDestination.LEGAL -> {
+                    LegalScreen(
+                      initialTab = legalInitialTab
                     )
                   }
                 }

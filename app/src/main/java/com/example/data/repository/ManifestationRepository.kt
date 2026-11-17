@@ -184,20 +184,19 @@ class ManifestationRepository(context: Context? = null) {
     )
   )
 
-  // 10 Gratitude items initialized with Rhonda Byrne's format from "The Magic"
+  // "The Magic" 28-Day Lesson & Daily Refresh State
+  private val initialMagicDay = ((prefs?.getInt("mm_magic_day", 0) ?: 0).takeIf { it in 1..28 }
+    ?: ((_userProfile.value.streakDays % 28) + 1))
+
+  private val _currentMagicDay = MutableStateFlow(initialMagicDay)
+  val currentMagicDay: StateFlow<Int> = _currentMagicDay.asStateFlow()
+
+  private val _currentMagicLesson = MutableStateFlow(TheMagicCurriculum.lessonForDay(initialMagicDay))
+  val currentMagicLesson: StateFlow<MagicLesson> = _currentMagicLesson.asStateFlow()
+
+  // 10 Gratitude items initialized dynamically from today's lesson in Rhonda Byrne's "The Magic"
   private val _gratitudeList = MutableStateFlow(
-    listOf(
-      GratitudeItem(1, "my strong, healthy body and rhythmic breath", "it allows me to experience life with vitality and boundless energy", true),
-      GratitudeItem(2, "the peaceful early morning Brahma Muhurta hours", "the silence connects me directly to divine stillness and clarity", true),
-      GratitudeItem(3, "the pure glass of water placed in front of me", "it cleanses my cells and absorbs my highest thoughts of joy", true),
-      GratitudeItem(4, "my supportive family and mentors", "their love grounds me and reminds me that I am always guided", true),
-      GratitudeItem(5, "the abundance of money flowing into my life", "it gives me the freedom to create, share, and live comfortably", true),
-      GratitudeItem(6, "my sharp intuition and inner guidance", "they guide positive decisions and open doors to synchronicities", false),
-      GratitudeItem(7, "the sacred books of Rhonda Byrne and Dr. Joe Dispenza", "they revealed the scientific and spiritual law of vibration to me", false),
-      GratitudeItem(8, "the sanctuary of my home", "it provides safety, serenity, and sacred rest every night", false),
-      GratitudeItem(9, "all challenges I have overcome in the past", "they cultivated my inner resilience and made my spirit strong", false),
-      GratitudeItem(10, "the limitless possibilities awaiting me today", "the universe is orchestrating miracles on my behalf", false)
-    )
+    TheMagicCurriculum.buildGratitudeItemsForDay(initialMagicDay)
   )
   val gratitudeList: StateFlow<List<GratitudeItem>> = _gratitudeList.asStateFlow()
 
@@ -224,9 +223,20 @@ class ManifestationRepository(context: Context? = null) {
   val nightCompleted: StateFlow<Boolean> = _nightCompleted.asStateFlow()
 
   init {
-    loadSavedGratitude()?.let { saved ->
-      if (saved.isNotEmpty()) {
-        _gratitudeList.value = saved
+    val todayKey = todayDateKey(_currentTimeZone.value)
+    val lastDate = prefs?.getString("mm_last_gratitude_date", null)
+    if (lastDate != null && lastDate != todayKey) {
+      // New calendar day arrived: advance to next day in 'The Magic' and refresh 10 blessings
+      val nextDay = (_currentMagicDay.value % 28) + 1
+      applyMagicDayRefresh(nextDay, todayKey)
+    } else {
+      if (lastDate == null) {
+        prefs?.edit()?.putString("mm_last_gratitude_date", todayKey)?.apply()
+      }
+      loadSavedGratitude()?.let { saved ->
+        if (saved.isNotEmpty()) {
+          _gratitudeList.value = saved
+        }
       }
     }
   }
@@ -386,6 +396,48 @@ class ManifestationRepository(context: Context? = null) {
     saveGratitudeLocally(_gratitudeList.value)
   }
 
+  fun addMagicSuggestion(blessing: String, reason: String) {
+    _gratitudeList.update { list ->
+      val existingIdx = list.indexOfFirst { it.blessing.equals(blessing, ignoreCase = true) }
+      if (existingIdx >= 0) {
+        list.mapIndexed { idx, item ->
+          if (idx == existingIdx) item.copy(isCompleted = true) else item
+        }
+      } else {
+        val newId = (list.maxOfOrNull { it.id } ?: 0) + 1
+        list + GratitudeItem(newId, blessing, reason, isCompleted = true)
+      }
+    }
+    saveGratitudeLocally(_gratitudeList.value)
+  }
+
+  fun refreshTodayBlessings(advanceToNextDay: Boolean = false) {
+    val targetDay = if (advanceToNextDay) (_currentMagicDay.value % 28) + 1 else _currentMagicDay.value
+    applyMagicDayRefresh(targetDay, todayDateKey(_currentTimeZone.value))
+  }
+
+  fun refreshDailyBlessingsIfNewDay(customTodayKey: String? = null) {
+    val todayKey = customTodayKey ?: todayDateKey(_currentTimeZone.value)
+    val lastDate = prefs?.getString("mm_last_gratitude_date", null)
+    if (lastDate != null && lastDate != todayKey) {
+      val nextDay = (_currentMagicDay.value % 28) + 1
+      applyMagicDayRefresh(nextDay, todayKey)
+    }
+  }
+
+  private fun applyMagicDayRefresh(day: Int, dateKey: String) {
+    val safeDay = ((day - 1).mod(28)) + 1
+    _currentMagicDay.value = safeDay
+    _currentMagicLesson.value = TheMagicCurriculum.lessonForDay(safeDay)
+    val freshList = TheMagicCurriculum.buildGratitudeItemsForDay(safeDay)
+    _gratitudeList.value = freshList
+    saveGratitudeLocally(freshList)
+    prefs?.edit()
+      ?.putInt("mm_magic_day", safeDay)
+      ?.putString("mm_last_gratitude_date", dateKey)
+      ?.apply()
+  }
+
   fun setWaterIntent(intent: String) {
     _waterIntent.value = intent
     prefs?.edit()?.putString("mm_water_intent", intent)?.apply()
@@ -430,6 +482,10 @@ class ManifestationRepository(context: Context? = null) {
     val newLevel = auraLevelForStreak(newStreak)
     _userProfile.update { it.copy(streakDays = newStreak, auraLevel = newLevel, isFirstTimeUser = false) }
     prefs?.edit()?.putInt("mm_streak_days", newStreak)?.apply()
+
+    // Refresh Count 10 Blessings to the next daily lesson of "The Magic" once routine completes
+    val nextMagicDay = (_currentMagicDay.value % 28) + 1
+    applyMagicDayRefresh(nextMagicDay, todayKey)
     refreshStreaks()
   }
 
@@ -561,6 +617,7 @@ class ManifestationRepository(context: Context? = null) {
     _currentMonthYear.value = calculateMonthYear(tz)
     _timeZoneDisplayName.value = calculateTimeZoneDisplay(tz)
     _currentWeekDays.value = calculateWeekDays(tz)
+    refreshDailyBlessingsIfNewDay()
     refreshStreaks()
   }
 

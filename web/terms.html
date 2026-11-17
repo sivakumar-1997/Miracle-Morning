@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms &amp; Conditions — Miracle Mornings</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+</head>
+<body>
+  <div class="app-wrapper">
+    <header class="top-header">
+      <div class="logo-area">
+        <div class="logo-icon">✨</div>
+        <div>
+          <h1 class="brand-title">Miracle Mornings</h1>
+          <p class="brand-subtitle">Terms &amp; Conditions</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <a href="/privacy" class="pill-badge" style="text-decoration:none;">Privacy</a>
+        <a href="/" class="pill-badge" style="text-decoration:none;background:var(--forest-dark);color:#fff;">← Open App</a>
+      </div>
+    </header>
+    <main id="standalone-terms-body"></main>
+  </div>
+  <script src="legal_content.js"></script>
+  <script>
+    document.getElementById('standalone-terms-body').innerHTML = window.renderLegalSectionsHtml('terms');
+  </script>
+</body>
+</html>

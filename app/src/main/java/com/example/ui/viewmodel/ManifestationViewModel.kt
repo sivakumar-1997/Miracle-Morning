@@ -24,7 +24,8 @@ enum class AppDestination(val label: String) {
   BOOKS("Books"),
   PRICING("Pricing"),
   ONBOARDING("Onboarding"),
-  AUTH("Auth")
+  AUTH("Auth"),
+  LEGAL("Privacy & Terms")
 }
 
 enum class AuthSubMode {
@@ -45,6 +46,8 @@ class ManifestationViewModel(
   val cloudState: StateFlow<SupabaseCloudState> = supabaseService.state
   val userProfile = repository.userProfile
   val completedDates = repository.completedDates
+  val currentMagicDay = repository.currentMagicDay
+  val currentMagicLesson = repository.currentMagicLesson
   val gratitudeList = repository.gratitudeList
   val chakrasList = repository.chakrasList
   val waterIntent = repository.waterIntent
@@ -78,6 +81,9 @@ class ManifestationViewModel(
 
   private val _authMode = MutableStateFlow(AuthSubMode.LOGIN)
   val authMode: StateFlow<AuthSubMode> = _authMode.asStateFlow()
+
+  private val _legalInitialTab = MutableStateFlow(com.example.ui.screens.LegalTab.PRIVACY)
+  val legalInitialTab: StateFlow<com.example.ui.screens.LegalTab> = _legalInitialTab.asStateFlow()
 
   // Morning routine stepped flow index (0..5)
   private val _activeMorningStepIndex = MutableStateFlow(0)
@@ -152,6 +158,11 @@ class ManifestationViewModel(
 
   fun setAuthMode(mode: AuthSubMode) {
     _authMode.value = mode
+  }
+
+  fun openLegal(tab: com.example.ui.screens.LegalTab = com.example.ui.screens.LegalTab.PRIVACY) {
+    _legalInitialTab.value = tab
+    navigateTo(AppDestination.LEGAL)
   }
 
   fun setMorningStep(index: Int) {
@@ -418,6 +429,18 @@ class ManifestationViewModel(
     pushGratitudeInBackground()
   }
 
+  fun addMagicSuggestion(blessing: String, reason: String) {
+    repository.addMagicSuggestion(blessing, reason)
+    pushGratitudeInBackground()
+    showToast("Added blessing from today's 'The Magic' lesson ✨")
+  }
+
+  fun refreshTodayBlessings(advanceToNextDay: Boolean = false) {
+    repository.refreshTodayBlessings(advanceToNextDay)
+    pushGratitudeInBackground()
+    showToast("Blessings refreshed for Day ${repository.currentMagicDay.value} of 'The Magic' ✨")
+  }
+
   fun setWaterIntent(intent: String) {
     repository.setWaterIntent(intent)
     pushWaterInBackground()
@@ -459,6 +482,7 @@ class ManifestationViewModel(
           waterIntent = repository.waterIntent.value,
           waterSips = repository.waterSipsTaken.value
         )
+        supabaseService.syncGratitude(repository.gratitudeList.value)
         supabaseService.logCompletedSession("morning")
       }
     }
